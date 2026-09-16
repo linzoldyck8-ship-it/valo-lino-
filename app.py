@@ -94,20 +94,22 @@ def conectar_gsheets():
     try:
         secrets_dict = dict(st.secrets["gcp_service_account"])
         
-        # Limpieza absoluta de la llave privada
-        pk = secrets_dict.get("private_key", "")
-        pk = pk.strip().strip('"').strip("'")
+        # Obtenemos la llave privada y removemos espacios o comillas sobrantes (simples, dobles o triples)
+        pk = secrets_dict.get("private_key", "").strip()
         
-        # Si la llave viene en una sola línea o con \n escapados, la normalizamos
+        for char in ['"""', "'''", '"', "'"]:
+            if pk.startswith(char) and pk.endswith(char):
+                pk = pk[len(char):-len(char)].strip()
+                break
+
+        # Normalizamos los saltos de línea escapados
         pk = pk.replace("\\n", "\n")
         
-        # Forzamos una limpieza de formato si faltaban los saltos estándar de cabecera/pie
+        # Reconstrucción estricta del bloque PEM para satisfacer a la librería cryptography
         if "-----BEGIN PRIVATE KEY-----" in pk and "-----END PRIVATE KEY-----" in pk:
-            # Extraemos solo el contenido interno de la llave por seguridad
             partes = pk.split("-----BEGIN PRIVATE KEY-----")[1].split("-----END PRIVATE KEY-----")[0]
-            contenido_limpio = "".join(partes.split()) # Quita espacios y saltos basura intermedios
+            contenido_limpio = "".join(partes.split()) # Elimina cualquier espacio o salto basura intermedio
             
-            # Reconstruimos el bloque PEM con saltos de línea exactos cada 64 caracteres (como exige cryptography)
             import textwrap
             lineas_pem = textwrap.wrap(contenido_limpio, 64)
             pk = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lineas_pem) + "\n-----END PRIVATE KEY-----\n"
