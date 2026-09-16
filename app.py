@@ -21,7 +21,7 @@ st.markdown("""
 
     /* Fondo con imagen web y capa oscura neón */
     .stApp {
-        background-image: linear-gradient(rgba(11, 13, 18, 0.88), rgba(11, 13, 18, 0.92)), url("https://www.reddit.com/media?url=https%3A%2F%2Fexternal-preview.redd.it%2Fsimple-black-and-red-block-wallpaper-1920x1080-v0--0yCDFBkXYMQv3d3XDLcqo722qpBPnDP_pZkOc_Mz5o.jpeg%3Fwidth%3D1080%26crop%3Dsmart%26auto%3Dwebp%26s%3D44e15e480620c7730f5b7089f54c7c92b162b59b"); /* <--- Cambia este enlace por el de tu imagen de fondo */
+        background-image: linear-gradient(rgba(11, 13, 18, 0.88), rgba(11, 13, 18, 0.92)), url("https://www.reddit.com/r/wallpapers/comments/261uih/simple_black_and_red_block_wallpaper_1920x1080/?tl=es-419"); /* <--- Cambia este enlace por el de tu imagen de fondo */
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
