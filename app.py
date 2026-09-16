@@ -234,8 +234,8 @@ with tab_formulario:
         if submitted:
             if not nombre_real or not riot_id:
                 st.error("⚠️ Por favor completa al menos tu Nombre Real y tu Riot ID.")
-            elif not sheet_ws:
-                st.error("⚠️ Error de conexión con Google Sheets. Verifica el archivo credentials.json.")
+           elif not sheet_ws:
+        st.error("⚠️ Error crítico: La conexión con Google Sheets devolvió None. Revisa los Secrets.")
             else:
                 try:
                     # Obtenemos el total de filas actuales para calcular el número (Nº) correlativo
