@@ -92,21 +92,26 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
-        # Cargamos los secrets como un diccionario normal
         secrets_dict = dict(st.secrets["gcp_service_account"])
         
-        # Limpieza profunda de la llave privada para corregir cualquier error de formato de Streamlit
+        # Limpieza absoluta de la llave privada
         pk = secrets_dict.get("private_key", "")
-        pk = pk.strip()
+        pk = pk.strip().strip('"').strip("'")
         
-        # Si la llave viene con comillas envolventes erróneas, las quitamos
-        if pk.startswith('"') and pk.endswith('"'):
-            pk = pk[1:-1]
-        if pk.startswith("'") and pk.endswith("'"):
-            pk = pk[1:-1]
-            
-        # Aseguramos los saltos de línea reales
+        # Si la llave viene en una sola línea o con \n escapados, la normalizamos
         pk = pk.replace("\\n", "\n")
+        
+        # Forzamos una limpieza de formato si faltaban los saltos estándar de cabecera/pie
+        if "-----BEGIN PRIVATE KEY-----" in pk and "-----END PRIVATE KEY-----" in pk:
+            # Extraemos solo el contenido interno de la llave por seguridad
+            partes = pk.split("-----BEGIN PRIVATE KEY-----")[1].split("-----END PRIVATE KEY-----")[0]
+            contenido_limpio = "".join(partes.split()) # Quita espacios y saltos basura intermedios
+            
+            # Reconstruimos el bloque PEM con saltos de línea exactos cada 64 caracteres (como exige cryptography)
+            import textwrap
+            lineas_pem = textwrap.wrap(contenido_limpio, 64)
+            pk = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lineas_pem) + "\n-----END PRIVATE KEY-----\n"
+
         secrets_dict["private_key"] = pk
 
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
