@@ -6,7 +6,7 @@ from streamlit_autorefresh import st_autorefresh
 # Configuración de la página web
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
-    page_icon="logo.png",  # Asegúrate de subir también este ícono a GitHub
+    page_icon="SCARLET.png",  # Asegúrate de subir también este ícono a GitHub
     layout="wide"
 )
 
@@ -21,7 +21,7 @@ st.markdown("""
 
     /* Fondo con imagen web y capa oscura neón */
     .stApp {
-        background-image: linear-gradient(rgba(11, 13, 18, 0.88), rgba(11, 13, 18, 0.92)), url("https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1920"); /* <--- Cambia este enlace por el de tu imagen de fondo */
+        background-image: linear-gradient(rgba(11, 13, 18, 0.88), rgba(11, 13, 18, 0.92)), url("https://www.reddit.com/r/wallpapers/comments/261uih/simple_black_and_red_block_wallpaper_1920x1080/?tl=es-419"); /* <--- Cambia este enlace por el de tu imagen de fondo */
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
