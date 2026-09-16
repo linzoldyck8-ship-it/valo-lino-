@@ -32,20 +32,31 @@ if df.empty:
     st.warning("⚠️ No se pudieron cargar los datos. Asegúrate de que tu Google Sheet sea público (Cualquier usuario con el enlace puede ser Lector).")
 else:
     # Limpieza básica de espacios en los nombres de columnas
-    df.columns = [c.strip() for c in df.columns]
+    df.columns = [str(c).strip() for c in df.columns]
 
-    # --- 1. BLOQUE DE KPIS SUPERIORES ---
+    # --- 1. BLOQUE DE KPIS SUPERIORES (Blindado contra errores) ---
     total_postulantes = len(df.dropna(subset=['Nombre Real'])) if 'Nombre Real' in df.columns else len(df)
-    tryouts_activos = len(df[df['Estado'] == 'Tryout']) if 'Estado' in df.columns else 0
-    aceptados = len(df[df['Estado'] == 'Aceptado']) if 'Estado' in df.columns else 0
     
-    # Manejo seguro de la columna de baneos
-    if 'Baneos / Toxicidad' in df.columns:
-        baneados_alerta = len(df[df['Baneos / Toxicidad'].isin(['Chat Ban', 'Ranked Ban', 'Permanente/HWID'])])
-    else:
-        baneados_alerta = 0
+    tryouts_activos = 0
+    if 'Estado' in df.columns:
+        tryouts_activos = len(df[df['Estado'].astype(str).str.strip() == 'Tryout'])
 
-    # Definimos 4 columnas correctamente
+    aceptados = 0
+    if 'Estado' in df.columns:
+        aceptados = len(df[df['Estado'].astype(str).str.strip() == 'Aceptado'])
+
+    baneados_alerta = 0
+    # Buscamos variaciones posibles en el nombre de la columna de baneos
+    col_baneos = None
+    for c in df.columns:
+        if 'bano' in c.lower() or 'baneo' in c.lower() or 'toxicidad' in c.lower():
+            col_baneos = c
+            break
+
+    if col_baneos:
+        baneados_alerta = len(df[df[col_baneos].astype(str).str.strip().isin(['Chat Ban', 'Ranked Ban', 'Permanente/HWID'])])
+
+    # Definimos exactamente 4 columnas de métricas de forma segura
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Postulantes totales", total_postulantes)
     col2.metric("Pruebas Activos", tryouts_activos, delta="En proceso")
@@ -57,16 +68,20 @@ else:
     # --- 2. FILTROS LATERALES PARA JEFES ---
     st.sidebar.header("Filtros de Búsqueda")
     
-    rol_opciones = ["Todos"] + list(df['Rol Principal'].dropna().unique()) if 'Rol Principal' in df.columns else ["Todos"]
+    rol_opciones = ["Todos"]
+    if 'Rol Principal' in df.columns:
+        rol_opciones += list(df['Rol Principal'].dropna().unique())
     rol_filtro = st.sidebar.selectbox("Filtrar por Rol Principal", rol_opciones)
     
-    estado_opciones = ["Todos"] + list(df['Estado'].dropna().unique()) if 'Estado' in df.columns else ["Todos"]
+    estado_opciones = ["Todos"]
+    if 'Estado' in df.columns:
+        estado_opciones += list(df['Estado'].dropna().unique())
     estado_filtro = st.sidebar.selectbox("Filtrar por Estado", estado_opciones)
 
     df_filtered = df.copy()
-    if rol_filtro != "Todos":
+    if rol_filtro != "Todos" and 'Rol Principal' in df.columns:
         df_filtered = df_filtered[df_filtered['Rol Principal'] == rol_filtro]
-    if estado_filtro != "Todos":
+    if estado_filtro != "Todos" and 'Estado' in df.columns:
         df_filtered = df_filtered[df_filtered['Estado'] == estado_filtro]
 
     # --- 3. GRÁFICOS INTERACTIVOS (Plotly) ---
@@ -93,5 +108,8 @@ else:
 
     # --- 4. TABLA DE DETALLE INTERACTIVA ---
     st.subheader("📋 Detalle de Postulantes Filtrados")
-    cols_to_show = [c for c in ['Nº', 'Nombre Real', 'Riot ID (#TAG)', 'Rol Principal', 'Rango Actual', 'Peak Elo', 'Baneos / Toxicidad', 'Estado'] if c in df_filtered.columns]
+    possible_cols = ['Nº', 'Nombre Real', 'Riot ID (#TAG)', 'Rol Principal', 'Rango Actual', 'Peak Elo', 'Baneos / Toxicidad', 'Estado']
+    cols_to_show = [c for c in possible_cols if c in df_filtered.columns]
+    if not cols_to_show:
+        cols_to_show = df_filtered.columns
     st.dataframe(df_filtered[cols_to_show], use_container_width=True)
