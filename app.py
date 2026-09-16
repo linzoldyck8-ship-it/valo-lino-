@@ -23,7 +23,7 @@ st.markdown("""
 
     /* Fondo de la página web con tu imagen personalizada y capa oscura neón */
     .stApp {
-        background-image: linear-gradient(rgba(11, 13, 18, 0.88), rgba(11, 13, 18, 0.92)), url("fondoweb.png"); /* <--- Reemplaza "fondo.jpg" por el nombre de tu imagen de fondo */
+        background-image: linear-gradient(rgba(11, 13, 18, 0.88), rgba(11, 13, 18, 0.92)), url("fondoweb.jpg"); /* <--- Reemplaza "fondo.jpg" por el nombre de tu imagen de fondo */
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
