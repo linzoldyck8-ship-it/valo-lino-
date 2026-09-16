@@ -92,49 +92,21 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
-        secrets_dict = dict(st.secrets["gcp_service_account"])
-        
-        # Limpiamos la llave privada de forma segura
-        pk = secrets_dict.get("private_key", "").strip()
-        
-        # Quitamos comillas dobles o simples envolventes si las hubiera por error
-        if (pk.startswith('"') and pk.endswith('"')) or (pk.startswith("'") and pk.endswith("'")):
-            pk = pk[1:-1].strip()
-
-        # Normalizamos los saltos de línea
-        pk = pk.replace("\\n", "\n")
-        
-        # Reconstrucción estricta y limpia del bloque PEM para cryptography
-        if "-----BEGIN PRIVATE KEY-----" in pk and "-----END PRIVATE KEY-----" in pk:
-            partes = pk.split("-----BEGIN PRIVATE KEY-----")[1].split("-----END PRIVATE KEY-----")[0]
-            contenido_limpio = "".join(partes.split()) # Remueve cualquier espacio o salto basura
-            
-            import textwrap
-            lineas_pem = textwrap.wrap(contenido_limpio, 64)
-            pk = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lineas_pem) + "\n-----END PRIVATE KEY-----\n"
-
-        secrets_dict["private_key"] = pk
-
-        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
+        creds = Credentials.from_service_file("credentials.json", scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
-        st.error(f"Error detallado de conexión: {e}")
         return None
 
-# --- CONEXIÓN GLOBAL ---
-# Inicializamos la variable vacía por seguridad para evitar NameError
-sheet_ws = None 
-
-# Intentamos conectar
 sheet_ws = conectar_gsheets()
 
-# --- DECLARACIÓN DE PESTAÑAS PRINCIPALES ---
+# --- PESTAÑAS PRINCIPALES ---
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
-                                        
-  # Línea 137 corregida (sin espacios al inicio)
-count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
+
+with tab_dashboard:
+    # Autorrefresco solo en el panel gerencial cada 5 segundos
+    count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
     st.title("🔥 POSTULACIONES SCARLET VALORANT")
     st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
