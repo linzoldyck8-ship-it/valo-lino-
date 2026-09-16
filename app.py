@@ -92,31 +92,14 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
-        secrets_dict = dict(st.secrets["gcp_service_account"])
-        pk = secrets_dict.get("private_key", "").strip()
-        
-        if (pk.startswith('"') and pk.endswith('"')) or (pk.startswith("'") and pk.endswith("'")):
-            pk = pk[1:-1].strip()
-
-        pk = pk.replace("\\n", "\n")
-        
-        if "-----BEGIN PRIVATE KEY-----" in pk and "-----END PRIVATE KEY-----" in pk:
-            partes = pk.split("-----BEGIN PRIVATE KEY-----")[1].split("-----END PRIVATE KEY-----")[0]
-            contenido_limpio = "".join(partes.split())
-            
-            import textwrap
-            lineas_pem = textwrap.wrap(contenido_limpio, 64)
-            pk = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lineas_pem) + "\n-----END PRIVATE KEY-----\n"
-
-        secrets_dict["private_key"] = pk
-
-        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
+        creds = Credentials.from_service_file("credentials.json", scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
-        st.error(f"Error real de conexión: {e}")
         return None
+
+sheet_ws = conectar_gsheets()
 
 # --- PESTAÑAS PRINCIPALES ---
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
@@ -234,8 +217,8 @@ with tab_formulario:
         if submitted:
             if not nombre_real or not riot_id:
                 st.error("⚠️ Por favor completa al menos tu Nombre Real y tu Riot ID.")
-           elif not sheet_ws:
-        st.error("⚠️ Error crítico: La conexión con Google Sheets devolvió None. Revisa los Secrets.")
+            elif not sheet_ws:
+                st.error("⚠️ Error de conexión con Google Sheets. Verifica el archivo credentials.json.")
             else:
                 try:
                     # Obtenemos el total de filas actuales para calcular el número (Nº) correlativo
