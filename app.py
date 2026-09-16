@@ -89,20 +89,33 @@ st.markdown("""
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
+import json
+import tempfile
+import os
+
 @st.cache_resource
 def conectar_gsheets():
     try:
-        import json
-        # Leemos el bloque JSON completo directamente desde los secrets
+        # Extraemos el bloque JSON completo desde los secrets de Streamlit
         json_str = st.secrets["gcp_service_account"]["json"]
         creds_dict = json.loads(json_str)
         
-        # Corregimos los saltos de línea de la llave privada automáticamente
+        # Corregimos los saltos de línea de la llave privada de forma limpia
         creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
 
-        creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
+        # Creamos un archivo temporal físico limpio en el servidor de Streamlit
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
+            json.dump(creds_dict, temp_file)
+            temp_file_path = temp_file.name
+
+        # Conectamos usando el archivo temporal (evita por completo los errores de PEM)
+        creds = Credentials.from_service_account_file(temp_file_path, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
+        
+        # Limpiamos el archivo temporal del sistema
+        os.unlink(temp_file_path)
+        
         return sheet
     except Exception as e:
         st.error(f"Error detallado de conexión: {e}")
