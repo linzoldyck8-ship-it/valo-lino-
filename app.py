@@ -94,21 +94,20 @@ def conectar_gsheets():
     try:
         secrets_dict = dict(st.secrets["gcp_service_account"])
         
-        # Obtenemos la llave privada y removemos espacios o comillas sobrantes (simples, dobles o triples)
+        # Limpiamos la llave privada de forma segura
         pk = secrets_dict.get("private_key", "").strip()
         
-        for char in ['"""', "'''", '"', "'"]:
-            if pk.startswith(char) and pk.endswith(char):
-                pk = pk[len(char):-len(char)].strip()
-                break
+        # Quitamos comillas dobles o simples envolventes si las hubiera por error
+        if (pk.startswith('"') and pk.endswith('"')) or (pk.startswith("'") and pk.endswith("'")):
+            pk = pk[1:-1].strip()
 
-        # Normalizamos los saltos de línea escapados
+        # Normalizamos los saltos de línea
         pk = pk.replace("\\n", "\n")
         
-        # Reconstrucción estricta del bloque PEM para satisfacer a la librería cryptography
+        # Reconstrucción estricta y limpia del bloque PEM para cryptography
         if "-----BEGIN PRIVATE KEY-----" in pk and "-----END PRIVATE KEY-----" in pk:
             partes = pk.split("-----BEGIN PRIVATE KEY-----")[1].split("-----END PRIVATE KEY-----")[0]
-            contenido_limpio = "".join(partes.split()) # Elimina cualquier espacio o salto basura intermedio
+            contenido_limpio = "".join(partes.split()) # Remueve cualquier espacio o salto basura
             
             import textwrap
             lineas_pem = textwrap.wrap(contenido_limpio, 64)
