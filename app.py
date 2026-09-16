@@ -17,7 +17,7 @@ st.markdown("Panel de control ejecutivo para la visualización de postulantes, e
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
 url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
 
-@st.cache_data(ttl=60) # Actualiza datos cada 60 segundos
+@st.cache_data(ttl=60)
 def load_data():
     try:
         df = pd.read_csv(url)
@@ -29,12 +29,11 @@ def load_data():
 df = load_data()
 
 if df.empty:
-    st.warning("⚠️ No se pudieron cargar los datos. Asegúrate de que tu Google Sheet sea público (Cualquier usuario con el enlace puede ser Lector).")
+    st.warning("⚠️ No se pudieron cargar los datos. Asegúrate de que tu Google Sheet sea público.")
 else:
-    # Limpieza básica de espacios en los nombres de columnas
     df.columns = [str(c).strip() for c in df.columns]
 
-    # --- 1. BLOQUE DE KPIS SUPERIORES (Blindado contra errores) ---
+    # --- INICIALIZAR VARIABLES DE FORMA SEGURA ---
     total_postulantes = len(df.dropna(subset=['Nombre Real'])) if 'Nombre Real' in df.columns else len(df)
     
     tryouts_activos = 0
@@ -45,8 +44,7 @@ else:
     if 'Estado' in df.columns:
         aceptados = len(df[df['Estado'].astype(str).str.strip() == 'Aceptado'])
 
-    baneados_alerta = 0
-    # Buscamos variaciones posibles en el nombre de la columna de baneos
+    baneos_alerta = 0
     col_baneos = None
     for c in df.columns:
         if 'bano' in c.lower() or 'baneo' in c.lower() or 'toxicidad' in c.lower():
@@ -54,9 +52,9 @@ else:
             break
 
     if col_baneos:
-        baneados_alerta = len(df[df[col_baneos].astype(str).str.strip().isin(['Chat Ban', 'Ranked Ban', 'Permanente/HWID'])])
+        baneos_alerta = len(df[df[col_baneos].astype(str).str.strip().isin(['Chat Ban', 'Ranked Ban', 'Permanente/HWID'])])
 
-    # Definimos exactamente 4 columnas de métricas de forma segura
+    # --- 1. BLOQUE DE KPIS SUPERIORES ---
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Postulantes totales", total_postulantes)
     col2.metric("Pruebas Activos", tryouts_activos, delta="En proceso")
@@ -65,7 +63,7 @@ else:
 
     st.markdown("---")
 
-    # --- 2. FILTROS LATERALES PARA JEFES ---
+    # --- 2. FILTROS LATERALES ---
     st.sidebar.header("Filtros de Búsqueda")
     
     rol_opciones = ["Todos"]
@@ -84,7 +82,7 @@ else:
     if estado_filtro != "Todos" and 'Estado' in df.columns:
         df_filtered = df_filtered[df_filtered['Estado'] == estado_filtro]
 
-    # --- 3. GRÁFICOS INTERACTIVOS (Plotly) ---
+    # --- 3. GRÁFICOS ---
     col_g1, col_g2 = st.columns(2)
 
     with col_g1:
@@ -106,7 +104,7 @@ else:
         else:
             st.info("No hay datos suficientes de Roles para graficar.")
 
-    # --- 4. TABLA DE DETALLE INTERACTIVA ---
+    # --- 4. TABLA ---
     st.subheader("📋 Detalle de Postulantes Filtrados")
     possible_cols = ['Nº', 'Nombre Real', 'Riot ID (#TAG)', 'Rol Principal', 'Rango Actual', 'Peak Elo', 'Baneos / Toxicidad', 'Estado']
     cols_to_show = [c for c in possible_cols if c in df_filtered.columns]
