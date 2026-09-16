@@ -92,17 +92,15 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
-        # Extraemos los campos uno por uno desde st.secrets de forma segura
         private_key = st.secrets["gcp_service_account"]["private_key"]
         
-        # Limpiamos cualquier comilla extra o caracteres no válidos al inicio/final
-        private_key = private_key.strip('"').strip("'")
+        # Limpiamos cualquier comilla normal, doble, inteligente o espacios al inicio/final
+        private_key = private_key.strip().strip('"').strip("'").strip('“').strip('”').strip('‘').strip('’')
         
-        # Normalizamos los saltos de línea sin importar cómo se hayan pegado
+        # Normalizamos los saltos de línea
         if "\\n" in private_key:
             private_key = private_key.replace("\\n", "\n")
 
-        # Diccionario con las credenciales limpias
         creds_dict = {
             "type": "service_account",
             "project_id": st.secrets["gcp_service_account"]["project_id"],
