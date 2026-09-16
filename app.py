@@ -92,21 +92,38 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
-        # Convertimos los secrets a un diccionario normal
-        secrets_dict = dict(st.secrets["gcp_service_account"])
+        # Extraemos los campos uno por uno desde st.secrets de forma segura
+        private_key = st.secrets["gcp_service_account"]["private_key"]
         
-        # Limpiamos los saltos de línea de la clave privada por si acaso quedaron malformados
-        if "private_key" in secrets_dict:
-            secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+        # Limpiamos cualquier comilla extra o caracteres no válidos al inicio/final
+        private_key = private_key.strip('"').strip("'")
+        
+        # Normalizamos los saltos de línea sin importar cómo se hayan pegado
+        if "\\n" in private_key:
+            private_key = private_key.replace("\\n", "\n")
 
-        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
+        # Diccionario con las credenciales limpias
+        creds_dict = {
+            "type": "service_account",
+            "project_id": st.secrets["gcp_service_account"]["project_id"],
+            "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
+            "private_key": private_key,
+            "client_email": st.secrets["gcp_service_account"]["client_email"],
+            "client_id": st.secrets["gcp_service_account"]["client_id"],
+            "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
+            "token_uri": st.secrets["gcp_service_account"]["token_uri"],
+            "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"],
+            "universe_domain": st.secrets["gcp_service_account"].get("universe_domain", "googleapis.com")
+        }
+
+        creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
         st.error(f"Error detallado de conexión: {e}")
         return None
-
 # --- PESTAÑAS PRINCIPALES ---
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
 
