@@ -4,8 +4,8 @@ import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
 import gspread
 from google.oauth2.service_account import Credentials
-# Asegúrate de incluir 'tab_formulario' en la lista de nombres
-tab_formulario, tab_historial = st.tabs(["Formulario", "Historial"])
+# Declaramos las pestañas principales de la aplicación
+tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
 # Configuración de la página web
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
