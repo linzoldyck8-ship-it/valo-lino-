@@ -92,13 +92,18 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
+        # Convertimos los secrets a un diccionario normal
         secrets_dict = dict(st.secrets["gcp_service_account"])
+        
+        # Limpiamos los saltos de línea de la clave privada por si acaso quedaron malformados
+        if "private_key" in secrets_dict:
+            secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
-        # Esto te mostrará el error real en la pantalla en lugar del mensaje genérico
         st.error(f"Error detallado de conexión: {e}")
         return None
 
