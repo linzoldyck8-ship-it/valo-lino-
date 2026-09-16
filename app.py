@@ -94,26 +94,22 @@ import os
 @st.cache_resource
 def conectar_gsheets():
     try:
-        # Extraemos el bloque JSON completo desde los secrets de Streamlit
-        json_str = st.secrets["gcp_service_account"]["json"]
-        creds_dict = json.loads(json_str)
+        # Extraemos directamente desde el diccionario de secrets
+        secrets_dict = dict(st.secrets["gcp_service_account"])
         
-        # Corregimos los saltos de línea de la llave privada de forma limpia
-        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+        # Obtenemos la llave privada y removemos cualquier comilla sobrante que la corrompa
+        pk = secrets_dict.get("private_key", "")
+        pk = pk.strip().strip('"').strip("'")
+        
+        # Reemplazamos los textos '\n' lógicos por saltos de línea reales de criptografía
+        if "\\n" in pk:
+            pk = pk.replace("\\n", "\n")
+            
+        secrets_dict["private_key"] = pk
 
-        # Creamos un archivo temporal físico limpio en el servidor de Streamlit
-        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
-            json.dump(creds_dict, temp_file)
-            temp_file_path = temp_file.name
-
-        # Conectamos usando el archivo temporal (evita por completo los errores de PEM)
-        creds = Credentials.from_service_account_file(temp_file_path, scopes=scope)
+        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
-        
-        # Limpiamos el archivo temporal del sistema
-        os.unlink(temp_file_path)
-        
         return sheet
     except Exception as e:
         st.error(f"Error detallado de conexión: {e}")
