@@ -94,41 +94,19 @@ import os
 @st.cache_resource
 def conectar_gsheets():
     try:
-        # Cargamos las credenciales directamente desde el archivo JSON de tu repositorio
-        creds = Credentials.from_service_account_file("credentials.json.json", scopes=scope)
+        secrets_dict = dict(st.secrets["gcp_service_account"])
+        pk = secrets_dict.get("private_key", "").strip().strip('"').strip("'")
+        if "\\n" in pk:
+            pk = pk.replace("\\n", "\n")
+        secrets_dict["private_key"] = pk
+
+        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
         st.error(f"Error detallado de conexión: {e}")
         return None
-# --- PESTAÑAS PRINCIPALES ---
-tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
-
-with tab_dashboard:
-    # Autorrefresco solo en el panel gerencial cada 5 segundos
-    count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
-
-    st.title("🔥 POSTULACIONES SCARLET VALORANT")
-    st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
-
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
-
-    st.sidebar.markdown("## ⚙️ Panel de Control")
-    if st.sidebar.button("🔄 Sincronizar Datos"):
-        st.cache_data.clear()
-        st.success("¡Sincronizado correctamente!")
-
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🔍 Filtros de Búsqueda")
-
-    @st.cache_data(ttl=2)
-    def load_data():
-        try:
-            df = pd.read_csv(url)
-            return df
-        except Exception as e:
-            return pd.DataFrame()
 
     df = load_data()
 
