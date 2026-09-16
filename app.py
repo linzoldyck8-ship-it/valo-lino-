@@ -215,15 +215,18 @@ with tab_formulario:
         submitted = st.form_submit_button("🚀 Enviar Postulación")
 
         if submitted:
+            # Llamamos explícitamente a la función para obtener la conexión
+            sheet_ws = conectar_gsheets()
+            
             if not nombre_real or not riot_id:
                 st.error("⚠️ Por favor completa al menos tu Nombre Real y tu Riot ID.")
             elif not sheet_ws:
-                st.error("⚠️ Error de conexión con Google Sheets. Verifica el archivo credentials.json.")
+                st.error("⚠️ Error de conexión con Google Sheets. Verifica que tus Secrets estén bien configurados.")
             else:
                 try:
                     # Obtenemos el total de filas actuales para calcular el número (Nº) correlativo
                     data_rows = sheet_ws.get_all_values()
-                    nuevo_id = len(data_rows) # Asume que la fila 1 son encabezados
+                    nuevo_id = len(data_rows) 
                     
                     # Preparamos la nueva fila
                     nueva_fila = [
@@ -236,7 +239,7 @@ with tab_formulario:
                         peak_elo,
                         baneos,
                         horario,
-                        "Nuevo", # Estado por defecto al postularse
+                        "Nuevo", 
                         notas
                     ]
                     
