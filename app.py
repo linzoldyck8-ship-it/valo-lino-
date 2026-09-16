@@ -88,7 +88,7 @@ st.markdown("""
 # --- AUTORREFRESCO CADA 5 SEGUNDOS ---
 count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
-st.title("🔥 POSTULACIONES SCARLET VALORANT")
+st.title("🎮​POSTULACIONES SCARLET VALORANT")
 st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
 
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
