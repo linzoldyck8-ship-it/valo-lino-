@@ -133,8 +133,8 @@ sheet_ws = conectar_gsheets()
 # --- DECLARACIÓN DE PESTAÑAS PRINCIPALES ---
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
                                         
-    # Autorrefresco solo en el panel gerencial cada 5 segundos
-    count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
+  # Línea 137 corregida (sin espacios al inicio)
+count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
     st.title("🔥 POSTULACIONES SCARLET VALORANT")
     st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
