@@ -6,14 +6,14 @@ from streamlit_autorefresh import st_autorefresh
 # Configuración de la página web
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
-    page_icon="logo.png",  # Asegúrate de subir también este ícono a GitHub
+    page_icon="SCARLET.png",  # Asegúrate de subir también este ícono a GitHub
     layout="wide"
 )
 
 # --- ESTILOS CSS CON IMAGEN DE FONDO VÍA URL WEB ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap');
+    @import url('https://www.google.com/imgres?q=imagen%20en%20CARMESI%201280x720&imgurl=https%3A%2F%2Fp4.wallpaperbetter.com%2Fwallpaper%2F647%2F12%2F871%2Fcrimson-red-wallpaper-preview.jpg&imgrefurl=https%3A%2F%2Fwww.wallpaperbetter.com%2Fes%2Fsearch%3Fq%3Drojo%2Bcarmes%25C3%25AD&docid=2URoEagGMnMqIM&tbnid=jC00c56onfu6DM&vet=12ahUKEwjH27GLgvSWAxVBEbkGHQVaIIoQnPAOegUI_gEQAA..i&w=728&h=455&hcb=2&itg=1&ved=2ahUKEwjH27GLgvSWAxVBEbkGHQVaIIoQnPAOegUI_gEQAA');
 
     html, body, [class*="css"] {
         font-family: 'Agdasima', sans-serif !important;
