@@ -92,11 +92,14 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
-        creds = Credentials.from_service_file("credentials.json", scopes=scope)
+        # Cargamos las credenciales desde los Secrets de Streamlit de forma segura
+        secrets_dict = dict(st.secrets["gcp_service_account"])
+        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
+        st.error(f"Error de conexión con Google Sheets: {e}")
         return None
 
 sheet_ws = conectar_gsheets()
@@ -210,7 +213,7 @@ with tab_formulario:
             peak_elo = st.selectbox("Peak Elo (Máximo Rango Histórico)", ["Hierro-Plata", "Oro", "Platino", "Diamante", "Ascendente", "Inmortal 1", "Inmortal 2", "Inmortal 3", "Radiante"])
             baneos = st.selectbox("Historial de Baneos / Toxicidad", ["Limpio", "Advertencia", "Chat Ban", "Ranked Ban", "Permanente/HWID"])
             horario = st.selectbox("Horario Disponible", ["Mañana", "Tarde", "Noche", "Madrugada", "Flexible"])
-            notas = st.text_input("Link de Tracker.gg o VLR.gg / Notas")
+            notas = st.text_input("Link de Tracker.gg o VLR.gg / Notes")
 
         submitted = st.form_submit_button("🚀 Enviar Postulación")
 
@@ -218,7 +221,7 @@ with tab_formulario:
             if not nombre_real or not riot_id:
                 st.error("⚠️ Por favor completa al menos tu Nombre Real y tu Riot ID.")
             elif not sheet_ws:
-                st.error("⚠️ Error de conexión con Google Sheets. Verifica el archivo credentials.json.")
+                st.error("⚠️ Error de conexión con Google Sheets. Revisa la configuración de tus Secrets.")
             else:
                 try:
                     # Obtenemos el total de filas actuales para calcular el número (Nº) correlativo
