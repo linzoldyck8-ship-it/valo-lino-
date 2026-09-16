@@ -92,28 +92,13 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
-        private_key = st.secrets["gcp_service_account"]["private_key"]
+        import json
+        # Leemos el bloque JSON completo directamente desde los secrets
+        json_str = st.secrets["gcp_service_account"]["json"]
+        creds_dict = json.loads(json_str)
         
-        # Limpiamos cualquier comilla normal, doble, inteligente o espacios al inicio/final
-        private_key = private_key.strip().strip('"').strip("'").strip('“').strip('”').strip('‘').strip('’')
-        
-        # Normalizamos los saltos de línea
-        if "\\n" in private_key:
-            private_key = private_key.replace("\\n", "\n")
-
-        creds_dict = {
-            "type": "service_account",
-            "project_id": st.secrets["gcp_service_account"]["project_id"],
-            "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
-            "private_key": private_key,
-            "client_email": st.secrets["gcp_service_account"]["client_email"],
-            "client_id": st.secrets["gcp_service_account"]["client_id"],
-            "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
-            "token_uri": st.secrets["gcp_service_account"]["token_uri"],
-            "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
-            "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"],
-            "universe_domain": st.secrets["gcp_service_account"].get("universe_domain", "googleapis.com")
-        }
+        # Corregimos los saltos de línea de la llave privada automáticamente
+        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
 
         creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
         client = gspread.authorize(creds)
