@@ -89,11 +89,29 @@ st.markdown("""
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
+import textwrap
+
 @st.cache_resource
 def conectar_gsheets():
     try:
-        # Cargamos las credenciales desde los Secrets de Streamlit de forma segura
         secrets_dict = dict(st.secrets["gcp_service_account"])
+        
+        # Procesamos la llave privada para formatearla correctamente en bloques PEM
+        pk = secrets_dict.get("private_key", "").strip()
+        if pk.startswith('"') and pk.endswith('"'):
+            pk = pk[1:-1]
+        
+        # Limpiamos el texto y extraemos solo el contenido criptográfico central
+        if "-----BEGIN PRIVATE KEY-----" in pk and "-----END PRIVATE KEY-----" in pk:
+            cuerpo = pk.split("-----BEGIN PRIVATE KEY-----")[1].split("-----END PRIVATE KEY-----")[0]
+            cuerpo_limpio = "".join(cuerpo.split()) # Elimina todos los \n y espacios internos
+            
+            # Reorganiza el contenido en líneas estándar de 64 caracteres requeridas por OpenSSL
+            lineas_pem = textwrap.wrap(cuerpo_limpio, 64)
+            pk = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lineas_pem) + "\n-----END PRIVATE KEY-----\n"
+            
+        secrets_dict["private_key"] = pk
+
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
