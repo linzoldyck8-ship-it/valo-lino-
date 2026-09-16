@@ -95,7 +95,7 @@ st.markdown("""
 count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
 # Título Principal
-st.title("🔥 POSTULACIONES SCARLET VALORANT")
+st.title("🎮​POSTULACIONES SCARLET VALORANT")
 st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
 
 # ID de tu Google Sheet
