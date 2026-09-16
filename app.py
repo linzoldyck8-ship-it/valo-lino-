@@ -10,58 +10,81 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- ESTILOS CSS PERSONALIZADOS (Minimalista, Elegante y Tonalidad Scarlet) ---
+# --- ESTILOS CSS AVANZADOS: FONDOS, FUENTE AGDASIMA Y NEÓN SCARLET ---
 st.markdown("""
     <style>
-    /* Fondo general de la aplicación */
+    /* Importar tipografía Agdasima desde Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap');
+
+    /* Aplicar Agdasima y estilo base a toda la aplicación */
+    html, body, [class*="css"] {
+        font-family: 'Agdasima', sans-serif !important;
+    }
+
+    /* Fondo general minimalista con sutiles luces de neón escarlata y tono oscuro */
     .stApp {
-        background-color: #0e1117;
+        background-color: #0b0d12;
+        background-image: 
+            radial-gradient(circle at 10% 20%, rgba(255, 70, 85, 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(255, 70, 85, 0.06) 0%, transparent 40%);
         color: #f0f2f6;
     }
     
-    /* Estilo de la barra lateral */
+    /* Barra lateral separada por una línea visible de neón escarlata */
     [data-testid="stSidebar"] {
-        background-color: #161b22;
-        border-right: 1px solid #30363d;
+        background-color: #12161f;
+        border-right: 2px solid #ff4655;
+        box-shadow: 4px 0px 15px rgba(255, 70, 85, 0.2);
     }
     
-    /* Métricas / Tarjetas superiores */
+    /* Métricas / Tarjetas superiores con borde neón sutil */
     [data-testid="stMetric"] {
-        background-color: #1f242d;
-        border: 1px solid #30363d;
+        background-color: #161b22;
+        border: 1px solid rgba(255, 70, 85, 0.3);
         padding: 15px;
         border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 0 10px rgba(255, 70, 85, 0.1);
     }
     
     [data-testid="stMetricLabel"] {
         color: #8b949e;
+        font-size: 1.2rem !important;
         font-weight: 600;
     }
     
     [data-testid="stMetricValue"] {
-        color: #ff4655; /* Color temático Valorant/Scarlet */
+        color: #ff4655 !important;
+        text-shadow: 0 0 8px rgba(255, 70, 85, 0.4);
+        font-size: 2.2rem !important;
     }
 
-    /* Títulos principales */
+    /* Títulos principales con efecto neón */
     h1, h2, h3 {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        letter-spacing: -0.5px;
+        font-family: 'Agdasima', sans-serif !important;
+        letter-spacing: 1px;
     }
     
-    /* Botones y selectores */
+    h1 {
+        color: #ffffff;
+        text-shadow: 0 0 12px rgba(255, 70, 85, 0.5);
+    }
+
+    /* Botones con estilo escarlata neón */
     .stButton>button {
         background-color: #ff4655;
         color: white;
         border-radius: 6px;
-        border: none;
-        font-weight: 600;
+        border: 1px solid #ff6b78;
+        font-weight: bold;
+        font-family: 'Agdasima', sans-serif;
+        font-size: 1.1rem;
+        box-shadow: 0 0 10px rgba(255, 70, 85, 0.4);
         transition: 0.3s;
     }
     
     .stButton>button:hover {
         background-color: #fa5c68;
-        border: none;
+        box-shadow: 0 0 18px rgba(255, 70, 85, 0.8);
         color: white;
     }
     </style>
@@ -78,7 +101,7 @@ st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster co
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
 url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
 
-# Controles en la barra lateral elegante
+# Controles en la barra lateral
 st.sidebar.markdown("## ⚙️ Panel de Control")
 if st.sidebar.button("🔄 Sincronizar Datos"):
     st.cache_data.clear()
