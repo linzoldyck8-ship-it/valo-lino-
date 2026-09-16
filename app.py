@@ -94,20 +94,8 @@ import os
 @st.cache_resource
 def conectar_gsheets():
     try:
-        # Extraemos directamente desde el diccionario de secrets
-        secrets_dict = dict(st.secrets["gcp_service_account"])
-        
-        # Obtenemos la llave privada y removemos cualquier comilla sobrante que la corrompa
-        pk = secrets_dict.get("private_key", "")
-        pk = pk.strip().strip('"').strip("'")
-        
-        # Reemplazamos los textos '\n' lógicos por saltos de línea reales de criptografía
-        if "\\n" in pk:
-            pk = pk.replace("\\n", "\n")
-            
-        secrets_dict["private_key"] = pk
-
-        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
+        # Cargamos las credenciales directamente desde el archivo JSON de tu repositorio
+        creds = Credentials.from_service_account_file("credentials.json.json", scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
