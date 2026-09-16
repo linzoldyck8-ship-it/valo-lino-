@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 # Título Principal
-st.title("🎯 Dashboard de Reclutamiento - Valorant Roster")
+st.title("🎯 Dashboard de Reclutamiento - Lista de valorantes")
 st.markdown("Panel de control ejecutivo para la visualización de postulantes, estados y análisis de riesgos en tiempo real.")
 
 # ID de tu Google Sheet
@@ -35,14 +35,20 @@ else:
     df.columns = [c.strip() for c in df.columns]
 
     # --- 1. BLOQUE DE KPIS SUPERIORES ---
-    total_postulantes = len(df.dropna(subset=['Nombre Real']))
+    total_postulantes = len(df.dropna(subset=['Nombre Real'])) if 'Nombre Real' in df.columns else len(df)
     tryouts_activos = len(df[df['Estado'] == 'Tryout']) if 'Estado' in df.columns else 0
     aceptados = len(df[df['Estado'] == 'Aceptado']) if 'Estado' in df.columns else 0
-    baneados_alerta = len(df[df['Baneos / Toxicidad'].isin(['Chat Ban', 'Ranked Ban', 'Permanente/HWID'])]) if 'Baneos / Toxicidad' in df.columns else 0
+    
+    # Manejo seguro de la columna de baneos
+    if 'Baneos / Toxicidad' in df.columns:
+        baneados_alerta = len(df[df['Baneos / Toxicidad'].isin(['Chat Ban', 'Ranked Ban', 'Permanente/HWID'])])
+    else:
+        baneados_alerta = 0
 
+    # Definimos 4 columnas correctamente
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Postulantes", total_postulantes)
-    col2.metric("Tryouts Activos", tryouts_activos, delta="En proceso")
+    col1.metric("Postulantes totales", total_postulantes)
+    col2.metric("Pruebas Activos", tryouts_activos, delta="En proceso")
     col3.metric("Plantel Aceptado", aceptados)
     col4.metric("Alertas de Baneos", baneos_alerta, delta_color="inverse" if baneos_alerta > 0 else "normal")
 
