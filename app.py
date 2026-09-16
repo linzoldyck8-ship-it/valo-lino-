@@ -4,15 +4,15 @@ import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
 import gspread
 from google.oauth2.service_account import Credentials
-# Declaramos las pestañas principales de la aplicación
-tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
+
 # Configuración de la página web
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
     page_icon="🔥",
     layout="wide"
 )
-
+# Declaramos las pestañas principales de la aplicación
+tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
 # --- ESTILOS CSS AVANZADOS ---
 st.markdown("""
     <style>
