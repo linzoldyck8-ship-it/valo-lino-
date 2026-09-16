@@ -4,6 +4,7 @@ import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
 import gspread
 from google.oauth2.service_account import Credentials
+import textwrap
 
 # Configuración de la página web
 st.set_page_config(
@@ -89,24 +90,19 @@ st.markdown("""
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
-import textwrap
-
 @st.cache_resource
 def conectar_gsheets():
     try:
         secrets_dict = dict(st.secrets["gcp_service_account"])
         
-        # Procesamos la llave privada para formatearla correctamente en bloques PEM
+        # Procesamiento y formateo de la llave privada de forma segura
         pk = secrets_dict.get("private_key", "").strip()
         if pk.startswith('"') and pk.endswith('"'):
             pk = pk[1:-1]
         
-        # Limpiamos el texto y extraemos solo el contenido criptográfico central
         if "-----BEGIN PRIVATE KEY-----" in pk and "-----END PRIVATE KEY-----" in pk:
             cuerpo = pk.split("-----BEGIN PRIVATE KEY-----")[1].split("-----END PRIVATE KEY-----")[0]
-            cuerpo_limpio = "".join(cuerpo.split()) # Elimina todos los \n y espacios internos
-            
-            # Reorganiza el contenido en líneas estándar de 64 caracteres requeridas por OpenSSL
+            cuerpo_limpio = "".join(cuerpo.split())
             lineas_pem = textwrap.wrap(cuerpo_limpio, 64)
             pk = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(lineas_pem) + "\n-----END PRIVATE KEY-----\n"
             
@@ -126,7 +122,6 @@ sheet_ws = conectar_gsheets()
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
 
 with tab_dashboard:
-    # Autorrefresco solo en el panel gerencial cada 5 segundos
     count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
     st.title("🔥 POSTULACIONES SCARLET VALORANT")
@@ -242,11 +237,9 @@ with tab_formulario:
                 st.error("⚠️ Error de conexión con Google Sheets. Revisa la configuración de tus Secrets.")
             else:
                 try:
-                    # Obtenemos el total de filas actuales para calcular el número (Nº) correlativo
                     data_rows = sheet_ws.get_all_values()
-                    nuevo_id = len(data_rows) # Asume que la fila 1 son encabezados
+                    nuevo_id = len(data_rows)
                     
-                    # Preparamos la nueva fila
                     nueva_fila = [
                         str(nuevo_id),
                         nombre_real,
@@ -257,11 +250,10 @@ with tab_formulario:
                         peak_elo,
                         baneos,
                         horario,
-                        "Nuevo", # Estado por defecto al postularse
+                        "Nuevo",
                         notas
                     ]
                     
-                    # Insertamos la fila en Google Sheets
                     sheet_ws.append_row(nueva_fila)
                     st.success("🎉 ¡Postulación enviada con éxito! Ya estás registrado en la base de datos oficial de Scarlet.")
                 except Exception as e:
