@@ -126,8 +126,9 @@ with tab_dashboard:
         try:
             df = pd.read_csv(url)
             return df
-        except Exception as e:
-            return pd.DataFrame()
+       except Exception as e:
+        st.error(f"Error real de conexión: {e}")
+        return None
 
     df = load_data()
 
