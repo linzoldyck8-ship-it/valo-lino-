@@ -131,7 +131,7 @@ sheet_ws = None
 sheet_ws = conectar_gsheets()
 
 # --- DECLARACIÓN DE PESTAÑAS PRINCIPALES ---
-tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"]
+tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
                                         
     # Autorrefresco solo en el panel gerencial cada 5 segundos
     count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
