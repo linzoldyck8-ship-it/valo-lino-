@@ -11,8 +11,7 @@ st.set_page_config(
     page_icon="🔥",
     layout="wide"
 )
-# Declaramos las pestañas principales de la aplicación
-tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
+
 # --- ESTILOS CSS AVANZADOS ---
 st.markdown("""
     <style>
@@ -85,6 +84,8 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+# Declaramos las pestañas principales de la aplicación
+tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
 
 # --- CONFIGURACIÓN SEGURA DE GOOGLE SHEETS CON SECRETS DE STREAMLIT ---
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
