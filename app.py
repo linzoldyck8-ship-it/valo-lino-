@@ -96,7 +96,7 @@ def conectar_gsheets():
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
-   except Exception as e:
+ except Exception as e:
         st.error(f"Error real de conexión: {e}")
         return None
 
