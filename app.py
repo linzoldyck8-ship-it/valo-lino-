@@ -3,30 +3,31 @@ import pandas as pd
 import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
 
-# Configuración de la página web
+# Configuración de la página web con tu imagen de ícono personalizada
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
-    page_icon="🔥",
+    page_icon="SCARLET.png",  # <--- Reemplaza "logo.png" por el nombre exacto de tu archivo de ícono
     layout="wide"
 )
 
-# --- ESTILOS CSS AVANZADOS: FONDOS, FUENTE AGDASIMA Y NEÓN SCARLET ---
+# --- ESTILOS CSS AVANZADOS: FONDO CON IMAGEN, FUENTE AGDASIMA Y NEÓN SCARLET ---
 st.markdown("""
     <style>
     /* Importar tipografía Agdasima desde Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap');
 
-    /* Aplicar Agdasima y estilo base a toda la aplicación */
+    /* Aplicar Agdasima a toda la aplicación */
     html, body, [class*="css"] {
         font-family: 'Agdasima', sans-serif !important;
     }
 
-    /* Fondo general minimalista con sutiles luces de neón escarlata y tono oscuro */
+    /* Fondo de la página web con tu imagen personalizada y capa oscura neón */
     .stApp {
-        background-color: #0b0d12;
-        background-image: 
-            radial-gradient(circle at 10% 20%, rgba(255, 70, 85, 0.08) 0%, transparent 40%),
-            radial-gradient(circle at 90% 80%, rgba(255, 70, 85, 0.06) 0%, transparent 40%);
+        background-image: linear-gradient(rgba(11, 13, 18, 0.88), rgba(11, 13, 18, 0.92)), url("fondoweb.png"); /* <--- Reemplaza "fondo.jpg" por el nombre de tu imagen de fondo */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
         color: #f0f2f6;
     }
     
@@ -39,11 +40,11 @@ st.markdown("""
     
     /* Métricas / Tarjetas superiores con borde neón sutil */
     [data-testid="stMetric"] {
-        background-color: #161b22;
-        border: 1px solid rgba(255, 70, 85, 0.3);
+        background-color: rgba(22, 27, 34, 0.85);
+        border: 1px solid rgba(255, 70, 85, 0.4);
         padding: 15px;
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(255, 70, 85, 0.1);
+        box-shadow: 0 0 10px rgba(255, 70, 85, 0.15);
     }
     
     [data-testid="stMetricLabel"] {
@@ -66,7 +67,7 @@ st.markdown("""
     
     h1 {
         color: #ffffff;
-        text-shadow: 0 0 12px rgba(255, 70, 85, 0.5);
+        text-shadow: 0 0 12px rgba(255, 70, 85, 0.6);
     }
 
     /* Botones con estilo escarlata neón */
@@ -93,7 +94,7 @@ st.markdown("""
 # --- AUTORREFRESCO CADA 5 SEGUNDOS ---
 count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
-# Título Principal Actualizado
+# Título Principal
 st.title("🔥 POSTULACIONES SCARLET VALORANT")
 st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
 
