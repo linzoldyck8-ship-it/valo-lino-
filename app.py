@@ -123,10 +123,15 @@ def conectar_gsheets():
         st.error(f"Error detallado de conexión: {e}")
         return None
 
+# --- CONEXIÓN GLOBAL ---
+# Inicializamos la variable vacía por seguridad para evitar NameError
+sheet_ws = None 
+
+# Intentamos conectar
+sheet_ws = conectar_gsheets()
 
 # --- DECLARACIÓN DE PESTAÑAS PRINCIPALES ---
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
-with tab_dashboard:
     # Autorrefresco solo en el panel gerencial cada 5 segundos
     count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
