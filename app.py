@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from streamlit_autorefresh import st_autorefresh
 
 # Configuración de la página web
 st.set_page_config(
@@ -8,6 +9,9 @@ st.set_page_config(
     page_icon="🎯",
     layout="wide"
 )
+
+# --- AUTORREFRESCO CADA 5 SEGUNDOS (5000 milisegundos) ---
+count = st_autorefresh(interval=5000, limit=None, key="valorant_autorefresh")
 
 # Título Principal
 st.title("🎯 Dashboard de Reclutamiento - Lista de valorantes")
@@ -17,7 +21,13 @@ st.markdown("Panel de control ejecutivo para la visualización de postulantes, e
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
 url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
 
-@st.cache_data(ttl=60)
+# Botón en la barra lateral para forzar la recarga manual al instante
+st.sidebar.header("Control de Datos")
+if st.sidebar.button("🔄 Sincronizar Ahora"):
+    st.cache_data.clear()
+    st.success("¡Sincronizado con éxito!")
+
+@st.cache_data(ttl=2) # Caché ultra corto para reflejar cambios de inmediato
 def load_data():
     try:
         df = pd.read_csv(url)
