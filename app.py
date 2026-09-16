@@ -88,11 +88,9 @@ st.markdown("""
 # --- CONFIGURACIÓN SEGURA DE GOOGLE SHEETS CON SECRETS DE STREAMLIT ---
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-
 import json
 import tempfile
 import os
-
 @st.cache_resource
 def conectar_gsheets():
     try:
