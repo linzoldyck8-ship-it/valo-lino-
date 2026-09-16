@@ -92,24 +92,21 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
+        # Cargamos los secrets como un diccionario normal
         secrets_dict = dict(st.secrets["gcp_service_account"])
         
-        # Limpiamos y aseguramos el formato correcto de la llave privada
+        # Limpieza profunda de la llave privada para corregir cualquier error de formato de Streamlit
         pk = secrets_dict.get("private_key", "")
+        pk = pk.strip()
         
-        # Si la llave viene con comillas o espacios extra, los removemos
-        pk = pk.strip().strip('"').strip("'")
-        
-        # Reemplazamos los saltos de línea escapados por saltos de línea reales de forma segura
+        # Si la llave viene con comillas envolventes erróneas, las quitamos
+        if pk.startswith('"') and pk.endswith('"'):
+            pk = pk[1:-1]
+        if pk.startswith("'") and pk.endswith("'"):
+            pk = pk[1:-1]
+            
+        # Aseguramos los saltos de línea reales
         pk = pk.replace("\\n", "\n")
-        
-        # Si por alguna razón los guiones iniciales sufrieron alteraciones, los normalizamos
-        if not pk.startswith("-----BEGIN PRIVATE KEY-----"):
-            # Intentamos limpiar caracteres basura al inicio si los hubiera
-            idx = pk.find("-----BEGIN PRIVATE KEY-----")
-            if idx != -1:
-                pk = pk[idx:]
-
         secrets_dict["private_key"] = pk
 
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
