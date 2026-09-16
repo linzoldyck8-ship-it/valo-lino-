@@ -123,8 +123,6 @@ def conectar_gsheets():
         st.error(f"Error detallado de conexión: {e}")
         return None
 
-# --- CONEXIÓN GLOBAL ---
-sheet_ws = conectar_gsheets()
 
 # --- DECLARACIÓN DE PESTAÑAS PRINCIPALES ---
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
