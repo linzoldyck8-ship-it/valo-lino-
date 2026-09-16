@@ -92,14 +92,22 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
-        creds = Credentials.from_service_file("credentials.json", scopes=scope)
+        # Leemos los datos directamente desde los Secrets seguros de Streamlit Cloud
+        secrets_dict = dict(st.secrets["gcp_service_account"])
+        
+        # Ajustamos los saltos de línea de la llave privada de forma limpia
+        pk = secrets_dict.get("private_key", "").strip().strip('"').strip("'")
+        if "\\n" in pk:
+            pk = pk.replace("\\n", "\n")
+        secrets_dict["private_key"] = pk
+
+        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
+        st.error(f"Error detallado de conexión: {e}")
         return None
-
-sheet_ws = conectar_gsheets()
 
 # --- PESTAÑAS PRINCIPALES ---
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
