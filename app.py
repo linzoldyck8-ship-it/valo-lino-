@@ -117,7 +117,7 @@ with tab_dashboard:
     # Autorrefresco solo en el panel gerencial cada 5 segundos
     count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
-    st.title("🔥 POSTULACIONES SCARLET VALORANT")
+    st.title("🎮 POSTULACIONES SCARLET VALORANT")
     st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
 
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
