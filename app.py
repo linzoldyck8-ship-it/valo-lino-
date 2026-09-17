@@ -142,7 +142,7 @@ with tab_dashboard:
     else:
         df.columns = [str(c).strip() for c in df.columns]
 
-        total_postulantes = len(df.dropna(subset=['Nombre Real'])) if 'Nombre Real' in df.columns else len(df)
+        total_postulantes = len(df.dropna(subset=['Contacto discord'])) if 'Contacto discord' in df.columns else len(df)
         tryouts_activos = len(df[df['Estado'].astype(str).str.strip() == 'Tryout']) if 'Estado' in df.columns else 0
         aceptados = len(df[df['Estado'].astype(str).str.strip() == 'Aceptado']) if 'Estado' in df.columns else 0
 
@@ -221,8 +221,8 @@ with tab_formulario:
         submitted = st.form_submit_button("🚀 Enviar Postulación")
 
         if submitted:
-            if not nombre_real or not riot_id:
-                st.error("⚠️ Por favor completa al menos tu Nombre Real y tu Riot ID.")
+            if not contacto_discord or not riot_id:
+                st.error("⚠️ Por favor completa al menos tu Contacto discord y tu Riot ID.")
             elif not sheet_ws:
                 st.error("⚠️ Error de conexión con Google Sheets. Verifica el archivo credentials.json.")
             else:
@@ -232,7 +232,7 @@ with tab_formulario:
                     
                     nueva_fila = [
                         str(nuevo_id),
-                        nombre_real,
+                       contacto_discord,
                         riot_id,
                         rol_principal,
                         rol_secundario,
