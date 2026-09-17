@@ -7,7 +7,7 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
-    page_icon="https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/SCARLET.png",
+    page_icon="https://github.com/linzoldyck8-ship-it/valo-lino-/blob/main/SCARLET.png",
     layout="wide"
 )
 # --- ESTILOS CSS AVANZADOS ---
