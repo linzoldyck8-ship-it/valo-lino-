@@ -186,7 +186,7 @@ with tab_dashboard:
     clave_acceso = st.text_input("Ingrese la clave para ver el panel gerencial", type="password")
     
     # CAMBIA "scarletadmin" POR LA CONTRASEÑA QUE DESEES
-    if clave_acceso == "scarletadmin":
+    if clave_acceso == "cazuela":
         
         count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
