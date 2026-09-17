@@ -15,10 +15,9 @@ st.set_page_config(
 # --- ESTILOS CSS AVANZADOS ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap');
-
+    /* CAMBIO A ARIAL BLACK */
     html, body, [class*="css"] {
-        font-family: 'Agdasima', sans-serif !important;
+        font-family: 'Arial Black', Arial, sans-serif !important;
     }
 
     .stApp {
@@ -57,7 +56,7 @@ st.markdown("""
     }
 
     h1, h2, h3 {
-        font-family: 'Agdasima', sans-serif !important;
+        font-family: 'Arial Black', Arial, sans-serif !important;
         letter-spacing: 1px;
     }
     
@@ -66,7 +65,7 @@ st.markdown("""
         text-shadow: 0 0 12px rgba(255, 70, 85, 0.5);
     }
 
-    /* --- NUEVO: AUMENTAR FUENTE DE LAS SELECCIONES Y FORMULARIO --- */
+    /* --- AUMENTAR FUENTE DE LAS SELECCIONES Y FORMULARIO --- */
     div[data-testid="stForm"] label p {
         font-size: 1.5rem !important;
         font-weight: bold;
@@ -89,8 +88,8 @@ st.markdown("""
         border-radius: 6px;
         border: 1px solid #ff6b78;
         font-weight: bold;
-        font-family: 'Agdasima', sans-serif;
-        font-size: 1.3rem !important; /* También aumenté un poco el botón */
+        font-family: 'Arial Black', Arial, sans-serif !important;
+        font-size: 1.3rem !important; 
         box-shadow: 0 0 10px rgba(255, 70, 85, 0.4);
         transition: 0.3s;
         padding: 10px 24px;
