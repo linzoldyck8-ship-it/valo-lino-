@@ -5,11 +5,13 @@ from streamlit_autorefresh import st_autorefresh
 import gspread
 from google.oauth2.service_account import Credentials
 
+# Configuración de la página con URL directa para el ícono
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
-    page_icon="https://github.com/linzoldyck8-ship-it/valo-lino-/blob/main/SCARLET.png",
+    page_icon="https://raw.githubusercontent.com/linzoldyck8-ship-it/valo-lino-/main/SCARLET.png",  # <-- PEGA AQUÍ LA URL DIRECTA DE TU ÍCONO
     layout="wide"
 )
+
 # --- ESTILOS CSS AVANZADOS ---
 st.markdown("""
     <style>
@@ -20,21 +22,22 @@ st.markdown("""
     }
 
     .stApp {
-        background-color: #0b0d12;
-        background-image: 
-            radial-gradient(circle at 10% 20%, rgba(255, 70, 85, 0.08) 0%, transparent 40%),
-            radial-gradient(circle at 90% 80%, rgba(255, 70, 85, 0.06) 0%, transparent 40%);
+        background-image: url("https://raw.githubusercontent.com/linzoldyck8-ship-it/valo-lino-/main/fondoweb.jpg"); /* <-- PEGA AQUÍ LA URL DE TU FONDO */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
         color: #f0f2f6;
     }
     
     [data-testid="stSidebar"] {
-        background-color: #12161f;
+        background-color: rgba(18, 22, 31, 0.95);
         border-right: 2px solid #ff4655;
         box-shadow: 4px 0px 15px rgba(255, 70, 85, 0.2);
     }
     
     [data-testid="stMetric"] {
-        background-color: #161b22;
+        background-color: rgba(22, 27, 34, 0.85);
         border: 1px solid rgba(255, 70, 85, 0.3);
         padding: 15px;
         border-radius: 8px;
@@ -87,13 +90,11 @@ st.markdown("""
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
-@st.cache_resource(ttl=60)  # TTL evita que la caché guarde un estado fallido para siempre
+@st.cache_resource(ttl=60)
 def conectar_gsheets():
     try:
-        # Convertimos el secreto de Streamlit a un diccionario estándar de Python
         creds_dict = dict(st.secrets["gcp_service_account"])
         
-        # Corregimos posibles problemas de formato en los saltos de línea de la clave
         if "private_key" in creds_dict:
             creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
             
@@ -102,7 +103,6 @@ def conectar_gsheets():
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
-        # Esto te mostrará el error REAL en pantalla si algo falla
         st.sidebar.error(f"❌ Error de conexión: {e}")
         return None
 
@@ -112,7 +112,6 @@ sheet_ws = conectar_gsheets()
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
 
 with tab_dashboard:
-    # Autorrefresco solo en el panel gerencial cada 5 segundos
     count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
 
     st.title("🔥 POSTULACIONES SCARLET VALORANT")
@@ -228,11 +227,9 @@ with tab_formulario:
                 st.error("⚠️ Error de conexión con Google Sheets. Verifica el archivo credentials.json.")
             else:
                 try:
-                    # Obtenemos el total de filas actuales para calcular el número (Nº) correlativo
                     data_rows = sheet_ws.get_all_values()
-                    nuevo_id = len(data_rows) # Asume que la fila 1 son encabezados
+                    nuevo_id = len(data_rows)
                     
-                    # Preparamos la nueva fila
                     nueva_fila = [
                         str(nuevo_id),
                         nombre_real,
@@ -243,11 +240,10 @@ with tab_formulario:
                         peak_elo,
                         baneos,
                         horario,
-                        "Nuevo", # Estado por defecto al postularse
+                        "Nuevo",
                         notas
                     ]
                     
-                    # Insertamos la fila en Google Sheets
                     sheet_ws.append_row(nueva_fila)
                     st.success("🎉 ¡Postulación enviada con éxito! Ya estás registrado en la base de datos oficial de Scarlet.")
                 except Exception as e:
