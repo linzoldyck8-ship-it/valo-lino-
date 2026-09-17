@@ -42,17 +42,22 @@ scope = [
 @st.cache_resource
 def conectar_gsheets():
     try:
-        # Carga los secretos configurados en Streamlit Cloud
+        # Carga los secretos y maneja automáticamente comillas triples o dobles
         if "gcp_service_account" in st.secrets:
             secrets_dict = dict(st.secrets["gcp_service_account"])
         else:
             secrets_dict = dict(st.secrets[list(st.secrets.keys())[0]])
+
+        # Corrección automática de saltos de línea en la clave privada si estuvieran planos
+        if "private_key" in secrets_dict:
+            secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
 
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
+        st.error(f"⚠️ Error técnico detallado: {e}")
         return None
 
 sheet_ws = conectar_gsheets()
