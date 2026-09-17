@@ -22,7 +22,7 @@ st.markdown("""
     }
 
     .stApp {
-        background-image: url("https://raw.githubusercontent.com/linzoldyck8-ship-it/valo-lino-/main/fondoweb.jpg"); /* <-- PEGA AQUÍ LA URL DE TU FONDO */
+        background-image: url("https://img.pikbest.com/wp/202408/square-cube-seamless-black-cubes-box-wall-background-in-3d-rendering_9739104.jpg!bw800"); /* <-- PEGA AQUÍ LA URL DE TU FONDO */
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
