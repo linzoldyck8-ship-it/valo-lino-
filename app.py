@@ -32,47 +32,17 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 1. Establecer la conexión con Google Sheets mediante st-gsheets
+# Establecer la conexión usando st-gsheets
 @st.cache_resource
 def conectar_gsheets():
     try:
         conn = st.connection("gsheets", type=GSheetsConnection)
-        df_usuarios = conn.read(worksheet="Usuarios", ttl=5)
-        return conn, df_usuarios
+        return conn
     except Exception as e:
-        return None, None
+        st.error(f"Error conectando a Google Sheets: {e}")
+        return None
 
-conn, df_usuarios = conectar_gsheets()
-
-# Control de sesión para el acceso por clave
-if "acceso_concedido" not in st.session_state:
-    st.session_state.acceso_concedido = False
-
-if not st.session_state.acceso_concedido:
-    st.title("🔐 Sistema de Acceso Automatizado - Scarlet")
-    st.write("Introduce tu clave asignada para desbloquear las funciones.")
-
-    clave_usuario = st.text_input("Introduce tu clave de acceso:", type="password")
-
-    if st.button("Verificar Clave"):
-        if clave_usuario:
-            if df_usuarios is not None and 'Claves' in df_usuarios.columns:
-                claves_validas = df_usuarios['Claves'].astype(str).values
-                if clave_usuario in claves_validas:
-                    st.session_state.acceso_concedido = True
-                    st.success("✅ ¡Acceso concedido! Bienvenido al sistema.")
-                    st.balloons()
-                    st.rerun()
-                else:
-                    st.error("🚨 Clave incorrecta. Acceso denegado.")
-            else:
-                st.warning("⚠️ No se encontró la hoja 'Usuarios' o la columna 'Claves' en tu Google Sheet.")
-        else:
-            st.info("Por favor, escribe una clave.")
-    st.stop()
-
-# --- APLICACIÓN PRINCIPAL (Una vez superada la clave) ---
-SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
+conn = conectar_gsheets()
 
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
 
@@ -81,7 +51,7 @@ with tab_dashboard:
     st.title("🔥 POSTULACIONES SCARLET VALORANT")
     
     try:
-        df_postulaciones = conn.read(worksheet="Sheet1", ttl=2)
+        df_postulaciones = conn.read(worksheet="Hoja 1", ttl=2)
     except Exception:
         df_postulaciones = pd.DataFrame()
 
@@ -95,7 +65,7 @@ with tab_dashboard:
 
 with tab_formulario:
     st.title("📝 Formulario de Postulación - Scarlet Valorant")
-    st.markdown("Completa tus datos correctamente para postularte.")
+    st.markdown("Completa tus datos correctamente para postularte. Tu información se registrará en Google Sheets de forma automática.")
     
     with st.form("form_postulacion", clear_on_submit=True):
         col_f1, col_f2 = st.columns(2)
@@ -118,10 +88,26 @@ with tab_formulario:
                 st.error("⚠️ Completa al menos tu Nombre Real y tu Riot ID.")
             else:
                 try:
-                    # Para escribir datos manteniendo st-gsheets, puedes usar gspread de respaldo o agregar la fila directo
-                    import gspread
-                    from google.oauth2.service_account import Credentials
-                    # O alternativamente puedes gestionar la inserción mediante gspread si prefieres.
-                    st.success("🎉 ¡Postulación procesada!")
+                    # Cargamos datos actuales para calcular la siguiente fila
+                    df_actual = conn.read(worksheet="Hoja 1", ttl=0)
+                    nuevo_id = len(df_actual.dropna(subset=['Nº'])) + 1
+                    
+                    nueva_fila = pd.DataFrame([{
+                        "Nº": nuevo_id,
+                        "Nombre Real": nombre_real,
+                        "Riot ID (#TAG)": riot_id,
+                        "Rol Principal": rol_principal,
+                        "Rol Secundario": rol_secundario,
+                        "Rango Actual": rango_actual,
+                        "Peak Elo": peak_elo,
+                        "Baneos / Toxicidad": baneos,
+                        "Horario": horario,
+                        "Estado": "Nuevo",
+                        "Notas / Tracker": notas
+                    }])
+                    
+                    df_actual = pd.concat([df_actual, nueva_fila], ignore_index=True)
+                    conn.update(worksheet="Hoja 1", data=df_actual)
+                    st.success("🎉 ¡Postulación enviada y guardada en Google Sheets con éxito!")
                 except Exception as e:
                     st.error(f"Error al registrar los datos: {e}")
