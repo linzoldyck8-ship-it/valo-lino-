@@ -1,7 +1,6 @@
 streamlit
+streamlit-gsheets
 pandas
 plotly
-requests
-streamlit-autorefresh
 gspread
-google-auth
+streamlit-autorefresh
