@@ -22,7 +22,7 @@ st.markdown("""
     }
 
     .stApp {
-        background-image: url("https://es.pngtree.com/free-backgrounds-photos/rojo-futurista"); /* <-- PEGA AQUÍ LA URL DE TU FONDO */
+        background-image: url("https://elements.envato.com/es/red-futuristic-background-BGM4ZKF?srsltid=AU7gw4XIvufUBoaB5pTwYFBL2ye5IPlSFMkFKXnhg8GvVBT20MLXNpgH"); /* <-- PEGA AQUÍ LA URL DE TU FONDO */
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
