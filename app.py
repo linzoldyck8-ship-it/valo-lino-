@@ -8,7 +8,7 @@ from google.oauth2.service_account import Credentials
 # Configuración de la página web
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
-    page_icon="SCARLET.png",  # <-- Coloca aquí el nombre/ruta de tu imagen en GitHub
+    page_icon="SCARLET.png"  # <-- Coloca aquí el nombre/ruta de tu imagen en GitHub
     layout="wide"
 )
 
