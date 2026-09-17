@@ -34,12 +34,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
-scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+scope = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
 
 @st.cache_resource
 def conectar_gsheets():
     try:
-        secrets_dict = dict(st.secrets["gcp_service_account"])
+        # Carga los secretos configurados en Streamlit Cloud
+        if "gcp_service_account" in st.secrets:
+            secrets_dict = dict(st.secrets["gcp_service_account"])
+        else:
+            secrets_dict = dict(st.secrets[list(st.secrets.keys())[0]])
+
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
@@ -97,21 +105,19 @@ with tab_formulario:
             if not nombre_real or not riot_id:
                 st.error("⚠️ Completa al menos tu Nombre Real y tu Riot ID.")
             else:
-                # Intentamos reconectar si la variable global falló al inicio
                 current_sheet = sheet_ws
                 if not current_sheet:
                     current_sheet = conectar_gsheets()
                 
                 if not current_sheet:
-                    st.error("⚠️ Error crítico: El bot no tiene permisos de Editor en Google Sheets. Comparte tu hoja con el correo de la cuenta de servicio.")
+                    st.error("⚠️ Error crítico: No se pudo conectar con Google Sheets. Revisa tus Secrets en Streamlit.")
                 else:
                     try:
                         data_rows = current_sheet.get_all_values()
                         nuevo_id = len(data_rows)
                         nueva_fila = [str(nuevo_id), nombre_real, riot_id, rol_principal, rol_secundario, rango_actual, peak_elo, baneos, horario, "Nuevo", notas]
                         
-                        # Inserta la fila automáticamente en el Sheets
                         current_sheet.append_row(nueva_fila)
                         st.success("🎉 ¡Postulación enviada y guardada en Google Sheets con éxito!")
                     except Exception as e:
-                        st.error(f"Error al registrar los datos en Google Sheets: {e}")
+                        st.error(f"Error al registrar los datos: {e}")
