@@ -92,11 +92,20 @@ scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis
 @st.cache_resource
 def conectar_gsheets():
     try:
-        creds = Credentials.from_service_file("credentials.json", scopes=scope)
+        # Cargamos las credenciales desde los Secrets de Streamlit Cloud de forma segura
+        secrets_dict = dict(st.secrets["gcp_service_account"])
+        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
-        sheet = client.open_by_key(SHEET_ID).sheet1
+        
+        # Abrimos directamente la pestaña llamada "Postulaciones"
+        spreadsheet = client.open_by_key(SHEET_ID)
+        try:
+            sheet = spreadsheet.worksheet("Postulaciones")
+        except:
+            sheet = spreadsheet.sheet1  # Fallback si no encuentra el nombre exacto
         return sheet
     except Exception as e:
+        st.error(f"Error interno conectando a Google Sheets: {e}")
         return None
 
 sheet_ws = conectar_gsheets()
@@ -111,7 +120,7 @@ with tab_dashboard:
     st.title("🔥 POSTULACIONES SCARLET VALORANT")
     st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
 
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
 
     st.sidebar.markdown("## ⚙️ Panel de Control")
     if st.sidebar.button("🔄 Sincronizar Datos"):
@@ -132,7 +141,7 @@ with tab_dashboard:
     df = load_data()
 
     if df.empty:
-        st.warning("⚠️ No se pudieron cargar los datos. Verifica que el Google Sheet sea público.")
+        st.warning("⚠️ No se pudieron cargar los datos. Verifica que el Google Sheet sea público o que los permisos del bot estén activos.")
     else:
         df.columns = [str(c).strip() for c in df.columns]
 
@@ -218,14 +227,12 @@ with tab_formulario:
             if not nombre_real or not riot_id:
                 st.error("⚠️ Por favor completa al menos tu Nombre Real y tu Riot ID.")
             elif not sheet_ws:
-                st.error("⚠️ Error de conexión con Google Sheets. Verifica el archivo credentials.json.")
+                st.error("⚠️ Error de conexión con Google Sheets. Verifica que los secretos estén configurados en Streamlit Cloud.")
             else:
                 try:
-                    # Obtenemos el total de filas actuales para calcular el número (Nº) correlativo
                     data_rows = sheet_ws.get_all_values()
-                    nuevo_id = len(data_rows) # Asume que la fila 1 son encabezados
+                    nuevo_id = len(data_rows)
                     
-                    # Preparamos la nueva fila
                     nueva_fila = [
                         str(nuevo_id),
                         nombre_real,
@@ -236,11 +243,10 @@ with tab_formulario:
                         peak_elo,
                         baneos,
                         horario,
-                        "Nuevo", # Estado por defecto al postularse
+                        "Nuevo",
                         notas
                     ]
                     
-                    # Insertamos la fila en Google Sheets
                     sheet_ws.append_row(nueva_fila)
                     st.success("🎉 ¡Postulación enviada con éxito! Ya estás registrado en la base de datos oficial de Scarlet.")
                 except Exception as e:
