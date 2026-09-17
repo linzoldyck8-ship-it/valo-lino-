@@ -195,7 +195,7 @@ with tab_dashboard:
                 st.plotly_chart(fig_roles, use_container_width=True)
 
         st.subheader("📋 Registro Detallado de Postulantes")
-        possible_cols = ['Nº', 'Nombre Real', 'Riot ID (#TAG)', 'Rol Principal', 'Rango Actual', 'Peak Elo', 'Baneos / Toxicidad', 'Estado']
+        possible_cols = ['Nº', 'Contacto discord', 'Riot ID (#TAG)', 'Rol Principal', 'Rango Actual', 'Peak Elo', 'Baneos / Toxicidad', 'Estado']
         cols_to_show = [c for c in possible_cols if c in df_filtered.columns]
         st.dataframe(df_filtered[cols_to_show], use_container_width=True)
 
@@ -206,7 +206,7 @@ with tab_formulario:
     with st.form("form_postulacion"):
         col_f1, col_f2 = st.columns(2)
         with col_f1:
-            nombre_real = st.text_input("Nombre Real")
+            contacto_discord = st.text_input("Contacto discord")
             riot_id = st.text_input("Riot ID (Ej: Scarlet#NA1)")
             rol_principal = st.selectbox("Rol Principal", ["Duelista", "Iniciador", "Controlador", "Centinela", "Flex"])
             rol_secundario = st.selectbox("Rol Secundario", ["Duelista", "Iniciador", "Controlador", "Centinela", "Flex"])
