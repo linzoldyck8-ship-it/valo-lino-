@@ -32,7 +32,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Establecer la conexión usando st-gsheets
 @st.cache_resource
 def conectar_gsheets():
     try:
@@ -51,7 +50,7 @@ with tab_dashboard:
     st.title("🔥 POSTULACIONES SCARLET VALORANT")
     
     try:
-        df_postulaciones = conn.read(worksheet="Hoja 1", ttl=2)
+        df_postulaciones = conn.read(worksheet="Postulaciones", ttl=2)
     except Exception:
         df_postulaciones = pd.DataFrame()
 
@@ -88,8 +87,7 @@ with tab_formulario:
                 st.error("⚠️ Completa al menos tu Nombre Real y tu Riot ID.")
             else:
                 try:
-                    # Cargamos datos actuales para calcular la siguiente fila
-                    df_actual = conn.read(worksheet="Hoja 1", ttl=0)
+                    df_actual = conn.read(worksheet="Postulaciones", ttl=0)
                     nuevo_id = len(df_actual.dropna(subset=['Nº'])) + 1
                     
                     nueva_fila = pd.DataFrame([{
@@ -107,7 +105,7 @@ with tab_formulario:
                     }])
                     
                     df_actual = pd.concat([df_actual, nueva_fila], ignore_index=True)
-                    conn.update(worksheet="Hoja 1", data=df_actual)
+                    conn.update(worksheet="Postulaciones", data=df_actual)
                     st.success("🎉 ¡Postulación enviada y guardada en Google Sheets con éxito!")
                 except Exception as e:
                     st.error(f"Error al registrar los datos: {e}")
