@@ -5,13 +5,11 @@ from streamlit_autorefresh import st_autorefresh
 import gspread
 from google.oauth2.service_account import Credentials
 
-# Configuración de la página web
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
-    page_icon="🔥",
+    page_icon="https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/SCARLET.png",
     layout="wide"
 )
-
 # --- ESTILOS CSS AVANZADOS ---
 st.markdown("""
     <style>
