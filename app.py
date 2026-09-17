@@ -66,6 +66,23 @@ st.markdown("""
         text-shadow: 0 0 12px rgba(255, 70, 85, 0.5);
     }
 
+    /* --- NUEVO: AUMENTAR FUENTE DE LAS SELECCIONES Y FORMULARIO --- */
+    div[data-testid="stForm"] label p {
+        font-size: 1.5rem !important;
+        font-weight: bold;
+    }
+    
+    div[data-testid="stForm"] div[data-baseweb="select"], 
+    div[data-testid="stForm"] input {
+        font-size: 1.3rem !important;
+    }
+
+    /* Aumentar el tamaño de las opciones desplegables */
+    ul[role="listbox"] li {
+        font-size: 1.3rem !important;
+    }
+    /* ----------------------------------------------------------- */
+
     .stButton>button {
         background-color: #ff4655;
         color: white;
@@ -73,9 +90,10 @@ st.markdown("""
         border: 1px solid #ff6b78;
         font-weight: bold;
         font-family: 'Agdasima', sans-serif;
-        font-size: 1.1rem;
+        font-size: 1.3rem !important; /* También aumenté un poco el botón */
         box-shadow: 0 0 10px rgba(255, 70, 85, 0.4);
         transition: 0.3s;
+        padding: 10px 24px;
     }
     
     .stButton>button:hover {
