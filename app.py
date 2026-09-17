@@ -15,7 +15,7 @@ st.set_page_config(
 # --- ESTILOS CSS AVANZADOS ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Agdasima:wght@400;700&display=swap');
+    @import url('https://elements.envato.com/es/red-futuristic-background-BGM4ZKF?srsltid=AU7gw4XIvufUBoaB5pTwYFBL2ye5IPlSFMkFKXnhg8GvVBT20MLXNpgH');
 
     html, body, [class*="css"] {
         font-family: 'Agdasima', sans-serif !important;
