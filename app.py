@@ -4,21 +4,14 @@ import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
 import gspread
 from google.oauth2.service_account import Credentials
-from PIL import Image  # <-- LIBRERÍA PARA CARGAR LA IMAGEN LOCAL
-import base64
-
-# Cargar el ícono local respetando las mayúsculas de GitHub
-try:
-    icon_image = Image.open("SCARLET.png")
-except Exception:
-    icon_image = "🔥"  # Respaldo por si no encuentra el archivo
 
 # Configuración de la página web
 st.set_page_config(
     page_title="Scarlet Valorant - Reclutamiento",
-    page_icon=icon_image,
+    page_icon="🔥",
     layout="wide"
 )
+
 # --- ESTILOS CSS AVANZADOS ---
 st.markdown("""
     <style>
