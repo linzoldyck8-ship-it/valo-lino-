@@ -108,97 +108,10 @@ def conectar_gsheets():
 
 sheet_ws = conectar_gsheets()
 
-# --- PESTAÑAS PRINCIPALES ---
-tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
+# --- PESTAÑAS PRINCIPALES (Orden Invertido) ---
+tab_formulario, tab_dashboard = st.tabs(["📝 Postularme al Roster", "📊 Panel Gerencial (Dashboard)"])
 
-with tab_dashboard:
-    count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
-
-    st.title("🔥 POSTULACIONES SCARLET VALORANT")
-    st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
-
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
-
-    st.sidebar.markdown("## ⚙️ Panel de Control")
-    if st.sidebar.button("🔄 Sincronizar Datos"):
-        st.cache_data.clear()
-        st.success("¡Sincronizado correctamente!")
-
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🔍 Filtros de Búsqueda")
-
-    @st.cache_data(ttl=2)
-    def load_data():
-        try:
-            df = pd.read_csv(url)
-            return df
-        except Exception as e:
-            return pd.DataFrame()
-
-    df = load_data()
-
-    if df.empty:
-        st.warning("⚠️ No se pudieron cargar los datos. Verifica que el Google Sheet sea público.")
-    else:
-        df.columns = [str(c).strip() for c in df.columns]
-
-        total_postulantes = len(df.dropna(subset=['Contacto discord'])) if 'Contacto discord' in df.columns else len(df)
-        tryouts_activos = len(df[df['Estado'].astype(str).str.strip() == 'Tryout']) if 'Estado' in df.columns else 0
-        aceptados = len(df[df['Estado'].astype(str).str.strip() == 'Aceptado']) if 'Estado' in df.columns else 0
-
-        baneos_alerta = 0
-        col_baneos = None
-        for c in df.columns:
-            if 'bano' in c.lower() or 'baneo' in c.lower() or 'toxicidad' in c.lower():
-                col_baneos = c
-                break
-        if col_baneos:
-            baneos_alerta = len(df[df[col_baneos].astype(str).str.strip().isin(['Chat Ban', 'Ranked Ban', 'Permanente/HWID'])])
-
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Postulantes Totales", total_postulantes)
-        col2.metric("Pruebas Activas", tryouts_activos, delta="En proceso")
-        col3.metric("Plantel Aceptado", aceptados)
-        col4.metric("Alertas de Baneos", baneos_alerta, delta_color="inverse" if baneos_alerta > 0 else "normal")
-
-        st.markdown("---")
-
-        rol_opciones = ["Todos"] + list(df['Rol Principal'].dropna().unique()) if 'Rol Principal' in df.columns else ["Todos"]
-        rol_filtro = st.sidebar.selectbox("Rol Principal", rol_opciones)
-        
-        estado_opciones = ["Todos"] + list(df['Estado'].dropna().unique()) if 'Estado' in df.columns else ["Todos"]
-        estado_filtro = st.sidebar.selectbox("Estado del Proceso", estado_opciones)
-
-        df_filtered = df.copy()
-        if rol_filtro != "Todos" and 'Rol Principal' in df.columns:
-            df_filtered = df_filtered[df_filtered['Rol Principal'] == rol_filtro]
-        if estado_filtro != "Todos" and 'Estado' in df.columns:
-            df_filtered = df_filtered[df_filtered['Estado'] == estado_filtro]
-
-        col_g1, col_g2 = st.columns(2)
-
-        with col_g1:
-            st.subheader("📊 Distribución por Estado")
-            if 'Estado' in df.columns and not df['Estado'].dropna().empty:
-                fig_estado = px.pie(df, names='Estado', hole=0.5, color_discrete_sequence=px.colors.sequential.Reds)
-                fig_estado.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#f0f2f6')
-                st.plotly_chart(fig_estado, use_container_width=True)
-
-        with col_g2:
-            st.subheader("⚔️ Demanda por Rol")
-            if 'Rol Principal' in df.columns and not df['Rol Principal'].dropna().empty:
-                rol_counts = df['Rol Principal'].value_counts().reset_index()
-                rol_counts.columns = ['Rol', 'Cantidad']
-                fig_roles = px.bar(rol_counts, x='Rol', y='Cantidad', 
-                                   color='Rol', color_discrete_sequence=['#ff4655', '#e94560', '#ff6b6b', '#c70039', '#900c3f'])
-                fig_roles.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#f0f2f6', showlegend=False)
-                st.plotly_chart(fig_roles, use_container_width=True)
-
-        st.subheader("📋 Registro Detallado de Postulantes")
-        possible_cols = ['Nº', 'Contacto discord', 'Riot ID (#TAG)', 'Rol Principal', 'Rango Actual', 'Peak Elo', 'Baneos / Toxicidad', 'Estado']
-        cols_to_show = [c for c in possible_cols if c in df_filtered.columns]
-        st.dataframe(df_filtered[cols_to_show], use_container_width=True)
-
+# --- APARTADO FORMULARIO (Se muestra primero por defecto) ---
 with tab_formulario:
     st.title("📝 Formulario de Postulación - Scarlet Valorant")
     st.markdown("Completa tus datos correctamente para postularte al roster competitivo. Tu información se registrará de inmediato.")
@@ -248,3 +161,102 @@ with tab_formulario:
                     st.success("🎉 ¡Postulación enviada con éxito! Ya estás registrado en la base de datos oficial de Scarlet.")
                 except Exception as e:
                     st.error(f"Hubo un error al registrar tus datos: {e}")
+
+# --- APARTADO DASHBOARD (Protegido con contraseña) ---
+with tab_dashboard:
+    st.subheader("🔒 Acceso Restringido")
+    # Ingreso de contraseña
+    clave_acceso = st.text_input("Ingrese la clave para ver el panel gerencial", type="password")
+    
+    # CAMBIA "scarletadmin" POR LA CONTRASEÑA QUE DESEES
+    if clave_acceso == "scarletadmin":
+        
+        count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
+
+        st.title("🔥 POSTULACIONES SCARLET VALORANT")
+        st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
+
+        url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
+
+        st.sidebar.markdown("## ⚙️ Panel de Control")
+        if st.sidebar.button("🔄 Sincronizar Datos"):
+            st.cache_data.clear()
+            st.success("¡Sincronizado correctamente!")
+
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("### 🔍 Filtros de Búsqueda")
+
+        @st.cache_data(ttl=2)
+        def load_data():
+            try:
+                df = pd.read_csv(url)
+                return df
+            except Exception as e:
+                return pd.DataFrame()
+
+        df = load_data()
+
+        if df.empty:
+            st.warning("⚠️ No se pudieron cargar los datos. Verifica que el Google Sheet sea público.")
+        else:
+            df.columns = [str(c).strip() for c in df.columns]
+
+            total_postulantes = len(df.dropna(subset=['Contacto discord'])) if 'Contacto discord' in df.columns else len(df)
+            tryouts_activos = len(df[df['Estado'].astype(str).str.strip() == 'Tryout']) if 'Estado' in df.columns else 0
+            aceptados = len(df[df['Estado'].astype(str).str.strip() == 'Aceptado']) if 'Estado' in df.columns else 0
+
+            baneos_alerta = 0
+            col_baneos = None
+            for c in df.columns:
+                if 'bano' in c.lower() or 'baneo' in c.lower() or 'toxicidad' in c.lower():
+                    col_baneos = c
+                    break
+            if col_baneos:
+                baneos_alerta = len(df[df[col_baneos].astype(str).str.strip().isin(['Chat Ban', 'Ranked Ban', 'Permanente/HWID'])])
+
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Postulantes Totales", total_postulantes)
+            col2.metric("Pruebas Activas", tryouts_activos, delta="En proceso")
+            col3.metric("Plantel Aceptado", aceptados)
+            col4.metric("Alertas de Baneos", baneos_alerta, delta_color="inverse" if baneos_alerta > 0 else "normal")
+
+            st.markdown("---")
+
+            rol_opciones = ["Todos"] + list(df['Rol Principal'].dropna().unique()) if 'Rol Principal' in df.columns else ["Todos"]
+            rol_filtro = st.sidebar.selectbox("Rol Principal", rol_opciones)
+            
+            estado_opciones = ["Todos"] + list(df['Estado'].dropna().unique()) if 'Estado' in df.columns else ["Todos"]
+            estado_filtro = st.sidebar.selectbox("Estado del Proceso", estado_opciones)
+
+            df_filtered = df.copy()
+            if rol_filtro != "Todos" and 'Rol Principal' in df.columns:
+                df_filtered = df_filtered[df_filtered['Rol Principal'] == rol_filtro]
+            if estado_filtro != "Todos" and 'Estado' in df.columns:
+                df_filtered = df_filtered[df_filtered['Estado'] == estado_filtro]
+
+            col_g1, col_g2 = st.columns(2)
+
+            with col_g1:
+                st.subheader("📊 Distribución por Estado")
+                if 'Estado' in df.columns and not df['Estado'].dropna().empty:
+                    fig_estado = px.pie(df, names='Estado', hole=0.5, color_discrete_sequence=px.colors.sequential.Reds)
+                    fig_estado.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#f0f2f6')
+                    st.plotly_chart(fig_estado, use_container_width=True)
+
+            with col_g2:
+                st.subheader("⚔️ Demanda por Rol")
+                if 'Rol Principal' in df.columns and not df['Rol Principal'].dropna().empty:
+                    rol_counts = df['Rol Principal'].value_counts().reset_index()
+                    rol_counts.columns = ['Rol', 'Cantidad']
+                    fig_roles = px.bar(rol_counts, x='Rol', y='Cantidad', 
+                                       color='Rol', color_discrete_sequence=['#ff4655', '#e94560', '#ff6b6b', '#c70039', '#900c3f'])
+                    fig_roles.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#f0f2f6', showlegend=False)
+                    st.plotly_chart(fig_roles, use_container_width=True)
+
+            st.subheader("📋 Registro Detallado de Postulantes")
+            possible_cols = ['Nº', 'Contacto discord', 'Riot ID (#TAG)', 'Rol Principal', 'Rango Actual', 'Peak Elo', 'Baneos / Toxicidad', 'Estado']
+            cols_to_show = [c for c in possible_cols if c in df_filtered.columns]
+            st.dataframe(df_filtered[cols_to_show], use_container_width=True)
+            
+    elif clave_acceso:
+        st.error("❌ Contraseña incorrecta. Acceso denegado.")
