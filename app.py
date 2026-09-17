@@ -89,14 +89,23 @@ st.markdown("""
 SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
-@st.cache_resource
+@st.cache_resource(ttl=60)  # TTL evita que la caché guarde un estado fallido para siempre
 def conectar_gsheets():
     try:
-        creds = Credentials.from_service_file("credentials.json", scopes=scope)
+        # Convertimos el secreto de Streamlit a un diccionario estándar de Python
+        creds_dict = dict(st.secrets["gcp_service_account"])
+        
+        # Corregimos posibles problemas de formato en los saltos de línea de la clave
+        if "private_key" in creds_dict:
+            creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+            
+        creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
         client = gspread.authorize(creds)
         sheet = client.open_by_key(SHEET_ID).sheet1
         return sheet
     except Exception as e:
+        # Esto te mostrará el error REAL en pantalla si algo falla
+        st.sidebar.error(f"❌ Error de conexión: {e}")
         return None
 
 sheet_ws = conectar_gsheets()
