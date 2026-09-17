@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from streamlit_autorefresh import st_autorefresh
-import gspread
-from google.oauth2.service_account import Credentials
+from streamlit_gsheets import GSheetsConnection
 
 # Configuración de la página web
 st.set_page_config(
@@ -85,30 +84,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Configuración de Google Sheets API para escritura
-SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
-scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-
+# Establecer la conexión oficial con Google Sheets
 @st.cache_resource
 def conectar_gsheets():
     try:
-        # Cargamos las credenciales desde los Secrets de Streamlit Cloud de forma segura
-        secrets_dict = dict(st.secrets["gcp_service_account"])
-        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
-        client = gspread.authorize(creds)
-        
-        # Abrimos directamente la pestaña llamada "Postulaciones"
-        spreadsheet = client.open_by_key(SHEET_ID)
-        try:
-            sheet = spreadsheet.worksheet("Postulaciones")
-        except:
-            sheet = spreadsheet.sheet1  # Fallback si no encuentra el nombre exacto
-        return sheet
+        conn = st.connection("gsheets", type=GSheetsConnection)
+        return conn
     except Exception as e:
-        st.error(f"Error interno conectando a Google Sheets: {e}")
         return None
 
-sheet_ws = conectar_gsheets()
+conn = conectar_gsheets()
 
 # --- PESTAÑAS PRINCIPALES ---
 tab_dashboard, tab_formulario = st.tabs(["📊 Panel Gerencial (Dashboard)", "📝 Postularme al Roster"])
@@ -120,8 +105,6 @@ with tab_dashboard:
     st.title("🔥 POSTULACIONES SCARLET VALORANT")
     st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
 
-    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid=0"
-
     st.sidebar.markdown("## ⚙️ Panel de Control")
     if st.sidebar.button("🔄 Sincronizar Datos"):
         st.cache_data.clear()
@@ -132,16 +115,18 @@ with tab_dashboard:
 
     @st.cache_data(ttl=2)
     def load_data():
-        try:
-            df = pd.read_csv(url)
-            return df
-        except Exception as e:
-            return pd.DataFrame()
+        if conn is not None:
+            try:
+                df = conn.read(worksheet="Postulaciones", ttl=2)
+                return df
+            except Exception as e:
+                return pd.DataFrame()
+        return pd.DataFrame()
 
     df = load_data()
 
     if df.empty:
-        st.warning("⚠️ No se pudieron cargar los datos. Verifica que el Google Sheet sea público o que los permisos del bot estén activos.")
+        st.warning("⚠️ No se pudieron cargar los datos. Verifica que la pestaña se llame 'Postulaciones' y que el Google Sheet tenga permisos públicos o acceso para el bot.")
     else:
         df.columns = [str(c).strip() for c in df.columns]
 
@@ -206,7 +191,7 @@ with tab_formulario:
     st.title("📝 Formulario de Postulación - Scarlet Valorant")
     st.markdown("Completa tus datos correctamente para postularte al roster competitivo. Tu información se registrará de inmediato.")
 
-    with st.form("form_postulacion"):
+    with st.form("form_postulacion", clear_on_submit=True):
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_real = st.text_input("Nombre Real")
@@ -226,28 +211,32 @@ with tab_formulario:
         if submitted:
             if not nombre_real or not riot_id:
                 st.error("⚠️ Por favor completa al menos tu Nombre Real y tu Riot ID.")
-            elif not sheet_ws:
-                st.error("⚠️ Error de conexión con Google Sheets. Verifica que los secretos estén configurados en Streamlit Cloud.")
+            elif conn is None:
+                st.error("⚠️ Error de conexión con Google Sheets.")
             else:
                 try:
-                    data_rows = sheet_ws.get_all_values()
-                    nuevo_id = len(data_rows)
+                    # Leemos los datos actuales para calcular el siguiente ID de forma segura
+                    df_actual = conn.read(worksheet="Postulaciones", ttl=0)
+                    nuevo_id = len(df_actual.dropna(subset=['Nº'])) + 1 if 'Nº' in df_actual.columns else len(df_actual) + 1
                     
-                    nueva_fila = [
-                        str(nuevo_id),
-                        nombre_real,
-                        riot_id,
-                        rol_principal,
-                        rol_secundario,
-                        rango_actual,
-                        peak_elo,
-                        baneos,
-                        horario,
-                        "Nuevo",
-                        notas
-                    ]
+                    nueva_fila = pd.DataFrame([{
+                        "Nº": nuevo_id,
+                        "Nombre Real": nombre_real,
+                        "Riot ID (#TAG)": riot_id,
+                        "Rol Principal": rol_principal,
+                        "Rol Secundario": rol_secundario,
+                        "Rango Actual": rango_actual,
+                        "Peak Elo": peak_elo,
+                        "Baneos / Toxicidad": baneos,
+                        "Horario": horario,
+                        "Estado": "Nuevo",
+                        "Notas / Tracker": notas
+                    }])
                     
-                    sheet_ws.append_row(nueva_fila)
+                    # Concatenamos y actualizamos la hoja usando la conexión oficial
+                    df_actual = pd.concat([df_actual, nueva_fila], ignore_index=True)
+                    conn.update(worksheet="Postulaciones", data=df_actual)
+                    
                     st.success("🎉 ¡Postulación enviada con éxito! Ya estás registrado en la base de datos oficial de Scarlet.")
                 except Exception as e:
                     st.error(f"Hubo un error al registrar tus datos: {e}")
