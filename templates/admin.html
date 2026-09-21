@@ -29,15 +29,19 @@
         <div id="tab-jefes" class="tab-content">
             <div class="admin-grid">
                 <div class="panel">
-                    <h2>Añadir Nuevo Jefe</h2>
-                    <form onsubmit="saveItem(event, '/api/jefes', {nombre: j_n.value, descripcion: j_d.value, imagen_url: j_i.value})">
+                    <h2 id="title-jefes">Añadir Nuevo Jefe</h2>
+                    <form onsubmit="handleFormSubmit(event, 'jefes', {nombre: j_n.value, descripcion: j_d.value, imagen_url: j_i.value})">
+                        <input type="hidden" id="edit-id-jefes">
                         <label>Nombre del Jefe</label>
                         <input type="text" id="j_n" placeholder="Ej: Dragón del Vacío" required>
                         <label>Descripción y Drops</label>
                         <textarea id="j_d" placeholder="Escribe detalles..." required></textarea>
                         <label>URL de la Imagen</label>
                         <input type="url" id="j_i" placeholder="https://..." required>
-                        <button type="submit" class="btn-primary">Guardar Jefe</button>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button type="submit" id="btn-jefes" class="btn-primary">Guardar Jefe</button>
+                            <button type="button" id="cancel-jefes" class="btn-danger" style="display:none;" onclick="resetForm('jefes')">Cancelar</button>
+                        </div>
                     </form>
                 </div>
                 <div class="panel">
@@ -47,17 +51,21 @@
             </div>
         </div>
 
-        <!-- NOVEDADES / VERSIONES -->
+        <!-- NOVEDADES -->
         <div id="tab-novedades" class="tab-content" style="display:none;">
             <div class="admin-grid">
                 <div class="panel">
-                    <h2>Añadir Novedad / Versión</h2>
-                    <form onsubmit="saveItem(event, '/api/novedades', {version: n_v.value, descripcion: n_d.value})">
+                    <h2 id="title-novedades">Añadir Novedad / Versión</h2>
+                    <form onsubmit="handleFormSubmit(event, 'novedades', {version: n_v.value, descripcion: n_d.value})">
+                        <input type="hidden" id="edit-id-novedades">
                         <label>Versión / Título</label>
                         <input type="text" id="n_v" placeholder="Ej: Versión 1.5 - El Abismo" required>
                         <label>Descripción del Parche</label>
                         <textarea id="n_d" placeholder="Novedades de la actualización..." required></textarea>
-                        <button type="submit" class="btn-primary">Guardar Novedad</button>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button type="submit" id="btn-novedades" class="btn-primary">Guardar Novedad</button>
+                            <button type="button" id="cancel-novedades" class="btn-danger" style="display:none;" onclick="resetForm('novedades')">Cancelar</button>
+                        </div>
                     </form>
                 </div>
                 <div class="panel">
@@ -71,9 +79,10 @@
         <div id="tab-armas" class="tab-content" style="display:none;">
             <div class="admin-grid">
                 <div class="panel">
-                    <h2>Añadir Arma y Armaduras especiales</h2>
-                    <form onsubmit="saveItem(event, '/api/armas', {nombre: a_n.value, danio: a_da.value, obtencion: a_o.value, imagen_url: a_i.value})">
-                        <label>Nombre del Arma o Armadura </label>
+                    <h2 id="title-armas">Añadir Arma o Armadura Única</h2>
+                    <form onsubmit="handleFormSubmit(event, 'armas', {nombre: a_n.value, danio: a_da.value, obtencion: a_o.value, imagen_url: a_i.value})">
+                        <input type="hidden" id="edit-id-armas">
+                        <label>Nombre del Arma o Armadura</label>
                         <input type="text" id="a_n" placeholder="Ej: Espada de Fuego" required>
                         <label>Daño / Estadísticas</label>
                         <input type="text" id="a_da" placeholder="Ej: +15 Ataque" required>
@@ -81,7 +90,10 @@
                         <input type="text" id="a_o" placeholder="Ej: Drop del Jefe Final" required>
                         <label>URL de la Imagen</label>
                         <input type="url" id="a_i" placeholder="https://..." required>
-                        <button type="submit" class="btn-primary">Guardar Arma o Armadura</button>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button type="submit" id="btn-armas" class="btn-primary">Guardar Arma o Armadura</button>
+                            <button type="button" id="cancel-armas" class="btn-danger" style="display:none;" onclick="resetForm('armas')">Cancelar</button>
+                        </div>
                     </form>
                 </div>
                 <div class="panel">
@@ -95,8 +107,9 @@
         <div id="tab-minerales" class="tab-content" style="display:none;">
             <div class="admin-grid">
                 <div class="panel">
-                    <h2>Añadir Mineral</h2>
-                    <form onsubmit="saveItem(event, '/api/minerales', {nombre: m_n.value, ubicacion: m_u.value, uso: m_us.value, imagen_url: m_i.value})">
+                    <h2 id="title-minerales">Añadir Mineral</h2>
+                    <form onsubmit="handleFormSubmit(event, 'minerales', {nombre: m_n.value, ubicacion: m_u.value, uso: m_us.value, imagen_url: m_i.value})">
+                        <input type="hidden" id="edit-id-minerales">
                         <label>Nombre del Mineral</label>
                         <input type="text" id="m_n" placeholder="Ej: Rubí Oscuro" required>
                         <label>Ubicación</label>
@@ -105,7 +118,10 @@
                         <input type="text" id="m_us" placeholder="Ej: Forja de Armaduras" required>
                         <label>URL de la Imagen</label>
                         <input type="url" id="m_i" placeholder="https://..." required>
-                        <button type="submit" class="btn-primary">Guardar Mineral</button>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button type="submit" id="btn-minerales" class="btn-primary">Guardar Mineral</button>
+                            <button type="button" id="cancel-minerales" class="btn-danger" style="display:none;" onclick="resetForm('minerales')">Cancelar</button>
+                        </div>
                     </form>
                 </div>
                 <div class="panel">
@@ -119,8 +135,9 @@
         <div id="tab-recetas" class="tab-content" style="display:none;">
             <div class="admin-grid">
                 <div class="panel">
-                    <h2>Añadir Crafteo Personalizado</h2>
-                    <form onsubmit="saveItem(event, '/api/recetas', {nombre: r_n.value, ingredientes: r_ing.value, estacion: r_e.value, imagen_url: r_i.value})">
+                    <h2 id="title-recetas">Añadir Crafteo Personalizado</h2>
+                    <form onsubmit="handleFormSubmit(event, 'recetas', {nombre: r_n.value, ingredientes: r_ing.value, estacion: r_e.value, imagen_url: r_i.value})">
+                        <input type="hidden" id="edit-id-recetas">
                         <label>Resultado del Crafteo</label>
                         <input type="text" id="r_n" placeholder="Ej: Poción Legendaria" required>
                         <label>Ingredientes</label>
@@ -129,7 +146,10 @@
                         <input type="text" id="r_e" placeholder="Ej: Mesa Alquímica" required>
                         <label>URL de la Imagen</label>
                         <input type="url" id="r_i" placeholder="https://..." required>
-                        <button type="submit" class="btn-primary">Guardar Crafteo</button>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button type="submit" id="btn-recetas" class="btn-primary">Guardar Crafteo</button>
+                            <button type="button" id="cancel-recetas" class="btn-danger" style="display:none;" onclick="resetForm('recetas')">Cancelar</button>
+                        </div>
                     </form>
                 </div>
                 <div class="panel">
@@ -139,31 +159,38 @@
             </div>
         </div>
 
-<!-- UBICACIONES -->
-<div id="tab-ubicaciones" class="tab-content" style="display:none;">
-    <div class="admin-grid">
-        <div class="panel">
-            <h2>Añadir Ubicación Importante</h2>
-            <form onsubmit="saveItem(event, '/api/ubicaciones', {nombre: u_n.value, coordenadas: u_c.value, descripcion: u_d.value, imagen_url: u_i.value})">
-                <label>Nombre del Lugar</label>
-                <input type="text" id="u_n" placeholder="Ej: Arena del Dragón / Zona PvP" required>
-                <label>Ubicación</label>
-                <input type="text" id="u_c" placeholder="Ej: Spawn / Overworld X: 100, Z: -200" required>
-                <label>Descripción</label>
-                <textarea id="u_d" placeholder="Detalles sobre lo que se encuentra en este lugar..." required></textarea>
-                <label>URL de la Imagen</label>
-                <input type="url" id="u_i" placeholder="https://..." required>
-                <button type="submit" class="btn-primary">Guardar Ubicación</button>
-            </form>
-        </div>
-        <div class="panel">
-            <h2>Ubicaciones Registradas</h2>
-            <div id="admin-ubicaciones" class="admin-list"></div>
+        <!-- UBICACIONES -->
+        <div id="tab-ubicaciones" class="tab-content" style="display:none;">
+            <div class="admin-grid">
+                <div class="panel">
+                    <h2 id="title-ubicaciones">Añadir Ubicación Importante</h2>
+                    <form onsubmit="handleFormSubmit(event, 'ubicaciones', {nombre: u_n.value, coordenadas: u_c.value, descripcion: u_d.value, imagen_url: u_i.value})">
+                        <input type="hidden" id="edit-id-ubicaciones">
+                        <label>Nombre del Lugar</label>
+                        <input type="text" id="u_n" placeholder="Ej: Arena del Dragón / Zona PvP" required>
+                        <label>Ubicación</label>
+                        <input type="text" id="u_c" placeholder="Ej: Spawn / Overworld X: 100, Z: -200" required>
+                        <label>Descripción</label>
+                        <textarea id="u_d" placeholder="Detalles sobre lo que se encuentra en este lugar..." required></textarea>
+                        <label>URL de la Imagen</label>
+                        <input type="url" id="u_i" placeholder="https://..." required>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button type="submit" id="btn-ubicaciones" class="btn-primary">Guardar Ubicación</button>
+                            <button type="button" id="cancel-ubicaciones" class="btn-danger" style="display:none;" onclick="resetForm('ubicaciones')">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="panel">
+                    <h2>Ubicaciones Registradas</h2>
+                    <div id="admin-ubicaciones" class="admin-list"></div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
     <script>
+        const store = {};
+
         function showTab(evt, name) {
             document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -171,37 +198,98 @@
             evt.currentTarget.classList.add('active');
         }
 
-        async function saveItem(e, url, data) {
+        async function handleFormSubmit(e, cat, data) {
             e.preventDefault();
-            await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            const editId = document.getElementById(`edit-id-${cat}`).value;
+            const url = editId ? `/api/${cat}/${editId}` : `/api/${cat}`;
+            const method = editId ? 'PUT' : 'POST';
+
+            await fetch(url, {
+                method: method,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
             window.location.reload();
         }
 
-        async function removeItem(url, id) {
+        function prepareEdit(cat, id) {
+            const item = store[cat].find(x => x.id == id);
+            if (!item) return;
+
+            document.getElementById(`edit-id-${cat}`).value = item.id;
+            document.getElementById(`title-${cat}`).innerText = "✏️ Modificar Elemento";
+            document.getElementById(`btn-${cat}`).innerText = "Actualizar Cambios";
+            document.getElementById(`cancel-${cat}`).style.display = "inline-block";
+
+            if (cat === 'jefes') {
+                j_n.value = item.nombre || '';
+                j_d.value = item.descripcion || '';
+                j_i.value = item.imagen_url || '';
+            } else if (cat === 'novedades') {
+                n_v.value = item.version || '';
+                n_d.value = item.descripcion || '';
+            } else if (cat === 'armas') {
+                a_n.value = item.nombre || '';
+                a_da.value = item.danio || '';
+                a_o.value = item.obtencion || '';
+                a_i.value = item.imagen_url || '';
+            } else if (cat === 'minerales') {
+                m_n.value = item.nombre || '';
+                m_u.value = item.ubicacion || '';
+                m_us.value = item.uso || '';
+                m_i.value = item.imagen_url || '';
+            } else if (cat === 'recetas') {
+                r_n.value = item.nombre || '';
+                r_ing.value = item.ingredientes || '';
+                r_e.value = item.estacion || '';
+                r_i.value = item.imagen_url || '';
+            } else if (cat === 'ubicaciones') {
+                u_n.value = item.nombre || '';
+                u_c.value = item.coordenadas || '';
+                u_d.value = item.descripcion || '';
+                u_i.value = item.imagen_url || '';
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetForm(cat) {
+            document.getElementById(`edit-id-${cat}`).value = "";
+            document.getElementById(`title-${cat}`).innerText = "Añadir Elemento";
+            document.getElementById(`btn-${cat}`).innerText = "Guardar";
+            document.getElementById(`cancel-${cat}`).style.display = "none";
+        }
+
+        async function removeItem(cat, id) {
             if(confirm('¿Deseas eliminar este elemento?')) {
-                await fetch(url + '/' + id, { method: 'DELETE' });
+                await fetch(`/api/${cat}/${id}`, { method: 'DELETE' });
                 window.location.reload();
             }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            loadList('/api/jefes', 'admin-jefes', item => `<b>${item.nombre}</b>`, '/api/jefes');
-            loadList('/api/novedades', 'admin-novedades', item => `<b>${item.version}</b>`, '/api/novedades');
-            loadList('/api/armas', 'admin-armas', item => `<b>${item.nombre}</b>`, '/api/armas');
-            loadList('/api/minerales', 'admin-minerales', item => `<b>${item.nombre}</b>`, '/api/minerales');
-            loadList('/api/recetas', 'admin-recetas', item => `<b>${item.nombre}</b>`, '/api/recetas');
-            loadList('/api/ubicaciones', 'admin-ubicaciones', item => `<b>${item.nombre}</b> (${item.coordenadas || ''})`, '/api/ubicaciones');
+            loadList('jefes', item => `<b>${item.nombre}</b>`);
+            loadList('novedades', item => `<b>${item.version}</b>`);
+            loadList('armas', item => `<b>${item.nombre}</b>`);
+            loadList('minerales', item => `<b>${item.nombre}</b>`);
+            loadList('recetas', item => `<b>${item.nombre}</b>`);
+            loadList('ubicaciones', item => `<b>${item.nombre}</b>`);
         });
 
-        async function loadList(apiUrl, elementId, formatText, deleteUrl) {
-            const res = await fetch(apiUrl);
+        async function loadList(cat, formatText) {
+            const res = await fetch(`/api/${cat}`);
             const items = await res.json();
-            const el = document.getElementById(elementId);
+            store[cat] = items;
+            const el = document.getElementById(`admin-${cat}`);
             if(!items.length) return el.innerHTML = '<p class="empty">Sin datos guardados.</p>';
+            
             el.innerHTML = items.map(item => `
-                <div class="admin-item">
+                <div class="admin-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <div>${formatText(item)}</div>
-                    <button class="btn-danger" onclick="removeItem('${deleteUrl}', '${item.id}')">Eliminar</button>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-primary" style="padding:4px 10px; font-size:0.8rem;" onclick="prepareEdit('${cat}', '${item.id}')">✏️ Editar</button>
+                        <button class="btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="removeItem('${cat}', '${item.id}')">Eliminar</button>
+                    </div>
                 </div>
             `).join('');
         }
