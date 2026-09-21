@@ -3,83 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wiki del Servidor - Minecraft</title>
+    <title>MC Server Wiki</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header class="top-nav">
-        <div class="logo"><a href="/">MC SERVER WIKI</a></div>
+        <div class="nav-left">
+            <div class="logo"><a href="/">⚡ MC SERVER WIKI</a></div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link">OBJETOS Y WIKI ▾</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#jefes">⚔️ Jefes Descubiertos</a></li>
+                        <li><a href="#armas">🗡️ Armas Únicas</a></li>
+                        <li><a href="#minerales">💎 Minerales</a></li>
+                        <li><a href="#recetas">📜 Crafteos Personalizados</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a href="#updates" class="nav-link">NOVEDADES</a></li>
+            </ul>
+        </div>
         <div><a href="/admin" class="nav-btn">⚙️ Panel Admin</a></div>
     </header>
 
     <div class="container">
-        <aside class="sidebar">
-            <h3>Navegación</h3>
-            <ul>
-                <li><a href="/">🏠 Inicio</a></li>
-                <li><a href="#jefes">⚔️ Jefes Descubiertos</a></li>
-                <li><a href="#updates">📢 Actualizaciones</a></li>
-            </ul>
-        </aside>
+        <div class="hero-banner">
+            <h1>BIENVENIDO A LA WIKI OFICIAL</h1>
+            <p>Descubre los secretos, armas, minerales y recetas exclusivas de nuestro servidor.</p>
+        </div>
 
-        <main class="main-content">
-            <div class="hero-banner">
-                <h1>BIENVENIDO A LA WIKI OFICIAL</h1>
-                <p>Descubre los secretos, jefes y novedades de nuestro servidor.</p>
-            </div>
-
-            <div class="grid-layout">
+        <div class="grid-layout">
+            <main class="main-content">
+                <!-- JEFES -->
                 <div class="panel" id="jefes">
                     <h2>⚔️ Jefes Descubiertos</h2>
-                    <div id="boss-container">
-                        <p class="loading">Cargando jefes desde la base de datos...</p>
-                    </div>
+                    <div id="boss-container"><p>Cargando jefes...</p></div>
                 </div>
 
+                <!-- ARMAS -->
+                <div class="panel" id="armas">
+                    <h2>🗡️ Armas Únicas</h2>
+                    <div id="weapons-container"><p>Cargando armas...</p></div>
+                </div>
+
+                <!-- MINERALES -->
+                <div class="panel" id="minerales">
+                    <h2>💎 Minerales del Servidor</h2>
+                    <div id="minerals-container"><p>Cargando minerales...</p></div>
+                </div>
+
+                <!-- CRAFTEOS / RECETAS -->
+                <div class="panel" id="recetas">
+                    <h2>📜 Crafteos Personalizados</h2>
+                    <div id="recipes-container"><p>Cargando recetas...</p></div>
+                </div>
+            </main>
+
+            <aside class="sidebar-content">
+                <!-- NOVEDADES DINÁMICAS (SE CARGAN DE LA BASE DE DATOS) -->
                 <div class="panel" id="updates">
                     <h2>📢 Últimas Versiones</h2>
-                    <div class="update-item">
-                        <h3>Versión 1.5 - "El Abismo"</h3>
-                        <p>Nuevos minijefes y dimensiones agregadas.</p>
-                    </div>
-                    <div class="update-item">
-                        <h3>Versión 1.4.0</h3>
-                        <p>Nuevos ítems y mejoras en la economía.</p>
-                    </div>
+                    <div id="updates-container"><p>Cargando versiones...</p></div>
                 </div>
-            </div>
-        </main>
+            </aside>
+        </div>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const container = document.getElementById('boss-container');
-            try {
-                const res = await fetch('/api/jefes');
-                const jefes = await res.json();
-                
-                if (!jefes || jefes.length === 0) {
-                    container.innerHTML = '<p class="empty">Aún no se han registrado jefes. ¡Ve al panel admin para agregar el primero!</p>';
-                    return;
-                }
-
-                container.innerHTML = '';
-                jefes.forEach(jefe => {
-                    container.innerHTML += `
-                        <div class="boss-item">
-                            <img src="${jefe.imagen_url || 'https://via.placeholder.com/60'}" alt="${jefe.nombre}">
-                            <div>
-                                <h3>${jefe.nombre}</h3>
-                                <p>${jefe.descripcion}</p>
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch (error) {
-                console.error("Error:", error);
-                container.innerHTML = '<p class="error">Error al cargar la lista de jefes.</p>';
-            }
+        document.addEventListener("DOMContentLoaded", () => {
+            loadJefes();
+            loadArmas();
+            loadMinerales();
+            loadRecetas();
+            loadNovedades();
         });
+
+        async function loadJefes() {
+            const res = await fetch('/api/jefes');
+            const data = await res.json();
+            const c = document.getElementById('boss-container');
+            if(!data.length) return c.innerHTML = '<p class="empty">No hay jefes registrados.</p>';
+            c.innerHTML = data.map(j => `
+                <div class="card-item" style="border-left-color: #ef4444;">
+                    <img src="${j.imagen_url || 'https://via.placeholder.com/50'}" alt="${j.nombre}">
+                    <div>
+                        <h3>${j.nombre}</h3>
+                        <p>${j.descripcion}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadArmas() {
+            const res = await fetch('/api/armas');
+            const data = await res.json();
+            const c = document.getElementById('weapons-container');
+            if(!data.length) return c.innerHTML = '<p class="empty">No hay armas registradas aún.</p>';
+            c.innerHTML = data.map(a => `
+                <div class="card-item" style="border-left-color: #3b82f6;">
+                    <img src="${a.imagen_url || 'https://via.placeholder.com/50'}" alt="${a.nombre}">
+                    <div>
+                        <h3>${a.nombre} <span class="badge">Daño: ${a.danio}</span></h3>
+                        <p><strong>Obtención:</strong> ${a.obtencion}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadMinerales() {
+            const res = await fetch('/api/minerales');
+            const data = await res.json();
+            const c = document.getElementById('minerals-container');
+            if(!data.length) return c.innerHTML = '<p class="empty">No hay minerales registrados aún.</p>';
+            c.innerHTML = data.map(m => `
+                <div class="card-item" style="border-left-color: #06b6d4;">
+                    <img src="${m.imagen_url || 'https://via.placeholder.com/50'}" alt="${m.nombre}">
+                    <div>
+                        <h3>${m.nombre} <span class="badge">Ubicación: ${m.ubicacion}</span></h3>
+                        <p><strong>Uso:</strong> ${m.uso}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadRecetas() {
+            const res = await fetch('/api/recetas');
+            const data = await res.json();
+            const c = document.getElementById('recipes-container');
+            if(!data.length) return c.innerHTML = '<p class="empty">No hay crafteos registrados aún.</p>';
+            c.innerHTML = data.map(r => `
+                <div class="card-item" style="border-left-color: #10b981;">
+                    <img src="${r.imagen_url || 'https://via.placeholder.com/50'}" alt="${r.nombre}">
+                    <div>
+                        <h3>${r.nombre} <span class="badge">Estación: ${r.estacion}</span></h3>
+                        <p><strong>Ingredientes:</strong> ${r.ingredientes}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadNovedades() {
+            const res = await fetch('/api/novedades');
+            const data = await res.json();
+            const c = document.getElementById('updates-container');
+            if(!data.length) return c.innerHTML = '<p class="empty">Sin novedades guardadas.</p>';
+            c.innerHTML = data.map(n => `
+                <div class="update-card">
+                    <h3>${n.version}</h3>
+                    <p>${n.descripcion}</p>
+                </div>
+            `).join('');
+        }
     </script>
 </body>
 </html>
