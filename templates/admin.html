@@ -3,21 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Wiki Servidor</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <header class="top-nav"><!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin - MC Wiki</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header class="top-nav">
-        <div class="logo"><a href="/">⚙️ ADMIN WIKI</a></div>
+        <div class="logo"><a href="/admin">⚙️ PANEL ADMINISTRADOR</a></div>
         <div><a href="/" class="nav-btn">Volver a la Wiki</a></div>
     </header>
 
@@ -32,74 +23,116 @@
 
         <!-- JEFES -->
         <div id="tab-jefes" class="tab-content">
-            <div class="panel">
-                <h2>Añadir Jefe</h2>
-                <form onsubmit="saveItem(event, '/api/jefes', {nombre: j_n.value, descripcion: j_d.value, imagen_url: j_i.value})">
-                    <input type="text" id="j_n" placeholder="Nombre del Jefe" required>
-                    <textarea id="j_d" placeholder="Descripción y drops" required></textarea>
-                    <input type="url" id="j_i" placeholder="URL de la imagen" required>
-                    <button type="submit">Guardar Jefe</button>
-                </form>
+            <div class="admin-grid">
+                <div class="panel">
+                    <h2>Añadir Nuevo Jefe</h2>
+                    <form onsubmit="saveItem(event, '/api/jefes', {nombre: j_n.value, descripcion: j_d.value, imagen_url: j_i.value})">
+                        <label>Nombre del Jefe</label>
+                        <input type="text" id="j_n" placeholder="Ej: Dragón del Vacío" required>
+                        <label>Descripción y Drops</label>
+                        <textarea id="j_d" placeholder="Escribe detalles..." required></textarea>
+                        <label>URL de la Imagen</label>
+                        <input type="url" id="j_i" placeholder="https://..." required>
+                        <button type="submit" class="btn-primary">Guardar Jefe</button>
+                    </form>
+                </div>
+                <div class="panel">
+                    <h2>Jefes Actuales</h2>
+                    <div id="admin-jefes" class="admin-list"></div>
+                </div>
             </div>
-            <div class="panel"><h2>Jefes Actuales</h2><div id="admin-jefes"></div></div>
         </div>
 
         <!-- NOVEDADES / VERSIONES -->
         <div id="tab-novedades" class="tab-content" style="display:none;">
-            <div class="panel">
-                <h2>Añadir Versión / Novedad</h2>
-                <form onsubmit="saveItem(event, '/api/novedades', {version: n_v.value, descripcion: n_d.value})">
-                    <input type="text" id="n_v" placeholder="Título o Versión (Ej: Versión 1.5 - El Abismo)" required>
-                    <textarea id="n_d" placeholder="Descripción de los cambios..." required></textarea>
-                    <button type="submit">Guardar Novedad</button>
-                </form>
+            <div class="admin-grid">
+                <div class="panel">
+                    <h2>Añadir Novedad / Versión</h2>
+                    <form onsubmit="saveItem(event, '/api/novedades', {version: n_v.value, descripcion: n_d.value})">
+                        <label>Versión / Título</label>
+                        <input type="text" id="n_v" placeholder="Ej: Versión 1.5 - El Abismo" required>
+                        <label>Descripción del Parche</label>
+                        <textarea id="n_d" placeholder="Novedades de la actualización..." required></textarea>
+                        <button type="submit" class="btn-primary">Guardar Novedad</button>
+                    </form>
+                </div>
+                <div class="panel">
+                    <h2>Versiones Registradas</h2>
+                    <div id="admin-novedades" class="admin-list"></div>
+                </div>
             </div>
-            <div class="panel"><h2>Versiones Publicadas</h2><div id="admin-novedades"></div></div>
         </div>
 
         <!-- ARMAS -->
         <div id="tab-armas" class="tab-content" style="display:none;">
-            <div class="panel">
-                <h2>Añadir Arma Única</h2>
-                <form onsubmit="saveItem(event, '/api/armas', {nombre: a_n.value, danio: a_da.value, obtencion: a_o.value, imagen_url: a_i.value})">
-                    <input type="text" id="a_n" placeholder="Nombre del Arma" required>
-                    <input type="text" id="a_da" placeholder="Daño / Estadísticas" required>
-                    <input type="text" id="a_o" placeholder="Cómo se obtiene" required>
-                    <input type="url" id="a_i" placeholder="URL Imagen" required>
-                    <button type="submit">Guardar Arma</button>
-                </form>
+            <div class="admin-grid">
+                <div class="panel">
+                    <h2>Añadir Arma Única</h2>
+                    <form onsubmit="saveItem(event, '/api/armas', {nombre: a_n.value, danio: a_da.value, obtencion: a_o.value, imagen_url: a_i.value})">
+                        <label>Nombre del Arma</label>
+                        <input type="text" id="a_n" placeholder="Ej: Espada de Fuego" required>
+                        <label>Daño / Estadísticas</label>
+                        <input type="text" id="a_da" placeholder="Ej: +15 Ataque" required>
+                        <label>Método de Obtención</label>
+                        <input type="text" id="a_o" placeholder="Ej: Drop del Jefe Final" required>
+                        <label>URL de la Imagen</label>
+                        <input type="url" id="a_i" placeholder="https://..." required>
+                        <button type="submit" class="btn-primary">Guardar Arma</button>
+                    </form>
+                </div>
+                <div class="panel">
+                    <h2>Armas Registradas</h2>
+                    <div id="admin-armas" class="admin-list"></div>
+                </div>
             </div>
-            <div class="panel"><h2>Armas Registradas</h2><div id="admin-armas"></div></div>
         </div>
 
         <!-- MINERALES -->
         <div id="tab-minerales" class="tab-content" style="display:none;">
-            <div class="panel">
-                <h2>Añadir Mineral</h2>
-                <form onsubmit="saveItem(event, '/api/minerales', {nombre: m_n.value, ubicacion: m_u.value, uso: m_us.value, imagen_url: m_i.value})">
-                    <input type="text" id="m_n" placeholder="Nombre del Mineral" required>
-                    <input type="text" id="m_u" placeholder="Dónde se encuentra (Ej: Capa -50)" required>
-                    <input type="text" id="m_us" placeholder="Uso principal" required>
-                    <input type="url" id="m_i" placeholder="URL Imagen" required>
-                    <button type="submit">Guardar Mineral</button>
-                </form>
+            <div class="admin-grid">
+                <div class="panel">
+                    <h2>Añadir Mineral</h2>
+                    <form onsubmit="saveItem(event, '/api/minerales', {nombre: m_n.value, ubicacion: m_u.value, uso: m_us.value, imagen_url: m_i.value})">
+                        <label>Nombre del Mineral</label>
+                        <input type="text" id="m_n" placeholder="Ej: Rubí Oscuro" required>
+                        <label>Ubicación</label>
+                        <input type="text" id="m_u" placeholder="Ej: Capa -50 a -64" required>
+                        <label>Uso Principal</label>
+                        <input type="text" id="m_us" placeholder="Ej: Forja de Armaduras" required>
+                        <label>URL de la Imagen</label>
+                        <input type="url" id="m_i" placeholder="https://..." required>
+                        <button type="submit" class="btn-primary">Guardar Mineral</button>
+                    </form>
+                </div>
+                <div class="panel">
+                    <h2>Minerales Registrados</h2>
+                    <div id="admin-minerales" class="admin-list"></div>
+                </div>
             </div>
-            <div class="panel"><h2>Minerales Registrados</h2><div id="admin-minerales"></div></div>
         </div>
 
         <!-- RECETAS -->
         <div id="tab-recetas" class="tab-content" style="display:none;">
-            <div class="panel">
-                <h2>Añadir Crafteo Personalizado</h2>
-                <form onsubmit="saveItem(event, '/api/recetas', {nombre: r_n.value, ingredientes: r_ing.value, estacion: r_e.value, imagen_url: r_i.value})">
-                    <input type="text" id="r_n" placeholder="Resultado del Crafteo" required>
-                    <textarea id="r_ing" placeholder="Ingredientes necesarios" required></textarea>
-                    <input type="text" id="r_e" placeholder="Mesa necesaria (Ej: Mesa Mágica)" required>
-                    <input type="url" id="r_i" placeholder="URL Imagen" required>
-                    <button type="submit">Guardar Crafteo</button>
-                </form>
+            <div class="admin-grid">
+                <div class="panel">
+                    <h2>Añadir Crafteo Personalizado</h2>
+                    <form onsubmit="saveItem(event, '/api/recetas', {nombre: r_n.value, ingredientes: r_ing.value, estacion: r_e.value, imagen_url: r_i.value})">
+                        <label>Resultado del Crafteo</label>
+                        <input type="text" id="r_n" placeholder="Ej: Poción Legendaria" required>
+                        <label>Ingredientes</label>
+                        <textarea id="r_ing" placeholder="Ej: 2x Rubí, 1x Frasco de Agua" required></textarea>
+                        <label>Estación / Mesa</label>
+                        <input type="text" id="r_e" placeholder="Ej: Mesa Alquímica" required>
+                        <label>URL de la Imagen</label>
+                        <input type="url" id="r_i" placeholder="https://..." required>
+                        <button type="submit" class="btn-primary">Guardar Crafteo</button>
+                    </form>
+                </div>
+                <div class="panel">
+                    <h2>Crafteos Registrados</h2>
+                    <div id="admin-recetas" class="admin-list"></div>
+                </div>
             </div>
-            <div class="panel"><h2>Crafteos Registrados</h2><div id="admin-recetas"></div></div>
         </div>
     </div>
 
@@ -118,7 +151,7 @@
         }
 
         async function removeItem(url, id) {
-            if(confirm('¿Seguro que deseas eliminar este registro?')) {
+            if(confirm('¿Deseas eliminar este elemento?')) {
                 await fetch(url + '/' + id, { method: 'DELETE' });
                 window.location.reload();
             }
@@ -136,104 +169,13 @@
             const res = await fetch(apiUrl);
             const items = await res.json();
             const el = document.getElementById(elementId);
-            if(!items.length) return el.innerHTML = '<p>Sin datos cargados.</p>';
+            if(!items.length) return el.innerHTML = '<p class="empty">Sin datos guardados.</p>';
             el.innerHTML = items.map(item => `
-                <div class="card-item" style="justify-content:space-between;">
+                <div class="admin-item">
                     <div>${formatText(item)}</div>
-                    <button class="btn-danger" onclick="removeItem('${deleteUrl}', '${item.id}')">Borrar</button>
+                    <button class="btn-danger" onclick="removeItem('${deleteUrl}', '${item.id}')">Eliminar</button>
                 </div>
             `).join('');
-        }
-    </script>
-</body>
-</html>
-        <div class="logo"><a href="/">MC SERVER WIKI</a></div>
-        <div><a href="/" class="nav-btn">Volver a la Wiki</a></div>
-    </header>
-
-    <div class="container">
-        <main class="main-content">
-            <div class="panel">
-                <h2>Añadir Nuevo Jefe</h2>
-                <form id="form-jefe">
-                    <input type="text" id="nombre" placeholder="Nombre del Jefe (ej: Dragón del Vacío)" required>
-                    <textarea id="descripcion" placeholder="Descripción, ubicación y drops..." rows="3" required></textarea>
-                    <input type="url" id="imagen" placeholder="URL de la imagen (ej: https://i.imgur.com/...)" required>
-                    <button type="submit">Guardar Jefe en Base de Datos</button>
-                </form>
-            </div>
-
-            <div class="panel">
-                <h2>Gestionar Jefes Existentes</h2>
-                <div id="admin-boss-list">
-                    <p>Cargando lista...</p>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        // Guardar jefe
-        document.getElementById('form-jefe').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = {
-                nombre: document.getElementById('nombre').value,
-                descripcion: document.getElementById('descripcion').value,
-                imagen_url: document.getElementById('imagen').value
-            };
-
-            try {
-                const res = await fetch('/api/jefes', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)
-                });
-                
-                if(res.ok) {
-                    alert('¡Jefe guardado correctamente!');
-                    window.location.reload();
-                } else {
-                    alert('Error al guardar el jefe.');
-                }
-            } catch (err) {
-                alert('Error de conexión.');
-            }
-        });
-
-        // Cargar jefes para eliminar
-        document.addEventListener("DOMContentLoaded", async () => {
-            const list = document.getElementById('admin-boss-list');
-            try {
-                const res = await fetch('/api/jefes');
-                const jefes = await res.json();
-                
-                if(!jefes || jefes.length === 0) {
-                    list.innerHTML = '<p>No hay jefes registrados.</p>';
-                    return;
-                }
-
-                list.innerHTML = '';
-                jefes.forEach(jefe => {
-                    list.innerHTML += `
-                        <div class="boss-item" style="justify-content: space-between;">
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <img src="${jefe.imagen_url || 'https://via.placeholder.com/50'}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
-                                <strong>${jefe.nombre}</strong>
-                            </div>
-                            <button class="btn-danger" onclick="eliminar('${jefe.id}')">Borrar</button>
-                        </div>
-                    `;
-                });
-            } catch (err) {
-                list.innerHTML = '<p>Error al cargar jefes.</p>';
-            }
-        });
-
-        async function eliminar(id) {
-            if(confirm('¿Seguro que quieres borrar este jefe?')) {
-                await fetch('/api/jefes/' + id, { method: 'DELETE' });
-                window.location.reload();
-            }
         }
     </script>
 </body>
