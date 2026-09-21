@@ -139,30 +139,29 @@
             </div>
         </div>
 
-        <!-- UBICACIONES -->
-        <div id="tab-ubicaciones" class="tab-content" style="display:none;">
-            <div class="admin-grid">
-                <div class="panel">
-                    <h2>Añadir Ubicación Importante</h2>
-                    <form onsubmit="saveItem(event, '/api/ubicaciones', {nombre: u_n.value, coordenadas: u_c.value, descripcion: u_d.value, imagen_url: u_i.value})">
-                        <label>Nombre del Lugar</label>
-                        <input type="text" id="u_n" placeholder="Ej: Arena del Dragón / Zona PvP" required>
-                        <label>Coordenadas (X, Y, Z)</label>
-                        <input type="text" id="u_c" placeholder="Ej: X: 1200, Y: 64, Z: -450" required>
-                        <label>Descripción</label>
-                        <textarea id="u_d" placeholder="Detalles sobre lo que se encuentra en este lugar..." required></textarea>
-                        <label>URL de la Imagen</label>
-                        <input type="url" id="u_i" placeholder="https://..." required>
-                        <button type="submit" class="btn-primary">Guardar Ubicación</button>
-                    </form>
-                </div>
-                <div class="panel">
-                    <h2>Ubicaciones Registradas</h2>
-                    <div id="admin-ubicaciones" class="admin-list"></div>
-                </div>
-            </div>
+<!-- UBICACIONES -->
+<div id="tab-ubicaciones" class="tab-content" style="display:none;">
+    <div class="admin-grid">
+        <div class="panel">
+            <h2>Añadir Ubicación Importante</h2>
+            <form onsubmit="saveItem(event, '/api/ubicaciones', {nombre: u_n.value, coordenadas: u_c.value, descripcion: u_d.value, imagen_url: u_i.value})">
+                <label>Nombre del Lugar</label>
+                <input type="text" id="u_n" placeholder="Ej: Arena del Dragón / Zona PvP" required>
+                <label>Ubicación</label>
+                <input type="text" id="u_c" placeholder="Ej: Spawn / Overworld X: 100, Z: -200" required>
+                <label>Descripción</label>
+                <textarea id="u_d" placeholder="Detalles sobre lo que se encuentra en este lugar..." required></textarea>
+                <label>URL de la Imagen</label>
+                <input type="url" id="u_i" placeholder="https://..." required>
+                <button type="submit" class="btn-primary">Guardar Ubicación</button>
+            </form>
+        </div>
+        <div class="panel">
+            <h2>Ubicaciones Registradas</h2>
+            <div id="admin-ubicaciones" class="admin-list"></div>
         </div>
     </div>
+</div>
 
     <script>
         function showTab(evt, name) {
