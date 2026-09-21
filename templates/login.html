@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Admin - MC Wiki</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+    <div class="panel" style="width: 100%; max-width: 400px; text-align: center;">
+        <h2 style="margin-bottom: 20px;">🔒 Acceso Administrador</h2>
+        
+        {% if error %}
+            <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 0.9rem;">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form action="/login" method="POST">
+            <label style="text-align: left; display: block;">Contraseña de Administrador:</label>
+            <input type="password" name="password" placeholder="Ingresa la contraseña..." required style="margin-bottom: 20px;">
+            <button type="submit" class="btn-primary">Ingresar al Panel</button>
+        </form>
+        
+        <div style="margin-top: 20px;">
+            <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem;">← Volver a la Wiki</a>
+        </div>
+    </div>
+</body>
+</html>
