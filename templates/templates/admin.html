@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Wiki Servidor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="top-nav">
+        <div class="logo"><a href="/">MC SERVER WIKI</a></div>
+        <div><a href="/" class="nav-btn">Volver a la Wiki</a></div>
+    </header>
+
+    <div class="container">
+        <main class="main-content">
+            <div class="panel">
+                <h2>Añadir Nuevo Jefe</h2>
+                <form id="form-jefe">
+                    <input type="text" id="nombre" placeholder="Nombre del Jefe (ej: Dragón del Vacío)" required>
+                    <textarea id="descripcion" placeholder="Descripción, ubicación y drops..." rows="3" required></textarea>
+                    <input type="url" id="imagen" placeholder="URL de la imagen (ej: https://i.imgur.com/...)" required>
+                    <button type="submit">Guardar Jefe en Base de Datos</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Gestionar Jefes Existentes</h2>
+                <div id="admin-boss-list">
+                    <p>Cargando lista...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Guardar jefe
+        document.getElementById('form-jefe').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                nombre: document.getElementById('nombre').value,
+                descripcion: document.getElementById('descripcion').value,
+                imagen_url: document.getElementById('imagen').value
+            };
+
+            try {
+                const res = await fetch('/api/jefes', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                if(res.ok) {
+                    alert('¡Jefe guardado correctamente!');
+                    window.location.reload();
+                } else {
+                    alert('Error al guardar el jefe.');
+                }
+            } catch (err) {
+                alert('Error de conexión.');
+            }
+        });
+
+        // Cargar jefes para eliminar
+        document.addEventListener("DOMContentLoaded", async () => {
+            const list = document.getElementById('admin-boss-list');
+            try {
+                const res = await fetch('/api/jefes');
+                const jefes = await res.json();
+                
+                if(!jefes || jefes.length === 0) {
+                    list.innerHTML = '<p>No hay jefes registrados.</p>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                jefes.forEach(jefe => {
+                    list.innerHTML += `
+                        <div class="boss-item" style="justify-content: space-between;">
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <img src="${jefe.imagen_url || 'https://via.placeholder.com/50'}" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;">
+                                <strong>${jefe.nombre}</strong>
+                            </div>
+                            <button class="btn-danger" onclick="eliminar('${jefe.id}')">Borrar</button>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                list.innerHTML = '<p>Error al cargar jefes.</p>';
+            }
+        });
+
+        async function eliminar(id) {
+            if(confirm('¿Seguro que quieres borrar este jefe?')) {
+                await fetch('/api/jefes/' + id, { method: 'DELETE' });
+                window.location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
