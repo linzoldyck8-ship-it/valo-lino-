@@ -1,6 +1,0 @@
-streamlit
-st-gsheets-connection
-pandas
-plotly
-gspread
-streamlit-autorefresh
