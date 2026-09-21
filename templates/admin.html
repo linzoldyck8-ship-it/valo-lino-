@@ -19,7 +19,7 @@
         <div class="tab-buttons">
             <button class="tab-btn active" onclick="showTab(event, 'jefes')">⚔️ Jefes</button>
             <button class="tab-btn" onclick="showTab(event, 'novedades')">📢 Novedades / Versiones</button>
-            <button class="tab-btn" onclick="showTab(event, 'armas')">🗡️ Armas</button>
+            <button class="tab-btn" onclick="showTab(event, 'armas')">🗡️ Armas y Armaduras</button>
             <button class="tab-btn" onclick="showTab(event, 'minerales')">💎 Minerales</button>
             <button class="tab-btn" onclick="showTab(event, 'recetas')">📜 Crafteos</button>
             <button class="tab-btn" onclick="showTab(event, 'ubicaciones')">📍 Ubicaciones</button>
@@ -71,9 +71,9 @@
         <div id="tab-armas" class="tab-content" style="display:none;">
             <div class="admin-grid">
                 <div class="panel">
-                    <h2>Añadir Arma Única</h2>
+                    <h2>Añadir Arma y Armaduras especiales</h2>
                     <form onsubmit="saveItem(event, '/api/armas', {nombre: a_n.value, danio: a_da.value, obtencion: a_o.value, imagen_url: a_i.value})">
-                        <label>Nombre del Arma</label>
+                        <label>Nombre del Arma o Armadura </label>
                         <input type="text" id="a_n" placeholder="Ej: Espada de Fuego" required>
                         <label>Daño / Estadísticas</label>
                         <input type="text" id="a_da" placeholder="Ej: +15 Ataque" required>
@@ -81,11 +81,11 @@
                         <input type="text" id="a_o" placeholder="Ej: Drop del Jefe Final" required>
                         <label>URL de la Imagen</label>
                         <input type="url" id="a_i" placeholder="https://..." required>
-                        <button type="submit" class="btn-primary">Guardar Arma</button>
+                        <button type="submit" class="btn-primary">Guardar Arma o Armadura</button>
                     </form>
                 </div>
                 <div class="panel">
-                    <h2>Armas Registradas</h2>
+                    <h2>Armas y Armaduras Registradas</h2>
                     <div id="admin-armas" class="admin-list"></div>
                 </div>
             </div>
