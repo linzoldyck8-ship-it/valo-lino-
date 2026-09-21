@@ -155,5 +155,25 @@ def delete_receta(id):
     if supabase: supabase.table('recetas').delete().eq('id', id).execute()
     return jsonify({"status": "deleted"})
 
+# API UBICACIONES
+@app.route('/api/ubicaciones', methods=['GET'])
+def get_ubicaciones():
+    if not supabase: return jsonify([]), 500
+    res = supabase.table('ubicaciones').select('*').execute()
+    return jsonify(res.data)
+
+@app.route('/api/ubicaciones', methods=['POST'])
+@admin_required
+def post_ubicaciones():
+    if not supabase: return jsonify([]), 500
+    supabase.table('ubicaciones').insert(request.json).execute()
+    return jsonify({"status": "ok"}), 201
+
+@app.route('/api/ubicaciones/<id>', methods=['DELETE'])
+@admin_required
+def delete_ubicacion(id):
+    if supabase: supabase.table('ubicaciones').delete().eq('id', id).execute()
+    return jsonify({"status": "deleted"})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
