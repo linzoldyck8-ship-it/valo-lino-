@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki del Servidor - Minecraft</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="top-nav">
+        <div class="logo"><a href="/">MC SERVER WIKI</a></div>
+        <div><a href="/admin" class="nav-btn">⚙️ Panel Admin</a></div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Navegación</h3>
+            <ul>
+                <li><a href="/">🏠 Inicio</a></li>
+                <li><a href="#jefes">⚔️ Jefes Descubiertos</a></li>
+                <li><a href="#updates">📢 Actualizaciones</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="hero-banner">
+                <h1>BIENVENIDO A LA WIKI OFICIAL</h1>
+                <p>Descubre los secretos, jefes y novedades de nuestro servidor.</p>
+            </div>
+
+            <div class="grid-layout">
+                <div class="panel" id="jefes">
+                    <h2>⚔️ Jefes Descubiertos</h2>
+                    <div id="boss-container">
+                        <p class="loading">Cargando jefes desde la base de datos...</p>
+                    </div>
+                </div>
+
+                <div class="panel" id="updates">
+                    <h2>📢 Últimas Versiones</h2>
+                    <div class="update-item">
+                        <h3>Versión 1.5 - "El Abismo"</h3>
+                        <p>Nuevos minijefes y dimensiones agregadas.</p>
+                    </div>
+                    <div class="update-item">
+                        <h3>Versión 1.4.0</h3>
+                        <p>Nuevos ítems y mejoras en la economía.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const container = document.getElementById('boss-container');
+            try {
+                const res = await fetch('/api/jefes');
+                const jefes = await res.json();
+                
+                if (!jefes || jefes.length === 0) {
+                    container.innerHTML = '<p class="empty">Aún no se han registrado jefes. ¡Ve al panel admin para agregar el primero!</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                jefes.forEach(jefe => {
+                    container.innerHTML += `
+                        <div class="boss-item">
+                            <img src="${jefe.imagen_url || 'https://via.placeholder.com/60'}" alt="${jefe.nombre}">
+                            <div>
+                                <h3>${jefe.nombre}</h3>
+                                <p>${jefe.descripcion}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error("Error:", error);
+                container.innerHTML = '<p class="error">Error al cargar la lista de jefes.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
