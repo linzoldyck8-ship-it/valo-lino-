@@ -55,125 +55,44 @@ def home():
 def admin():
     return render_template('admin.html')
 
-# API JEFES
-@app.route('/api/jefes', methods=['GET'])
-def get_jefes():
-    if not supabase: return jsonify([]), 500
-    res = supabase.table('jefes').select('*').execute()
-    return jsonify(res.data)
-
-@app.route('/api/jefes', methods=['POST'])
+# API JEFES (ACTUALIZAR)
+@app.route('/api/jefes/<id>', methods=['PUT'])
 @admin_required
-def post_jefes():
-    if not supabase: return jsonify([]), 500
-    supabase.table('jefes').insert(request.json).execute()
-    return jsonify({"status": "ok"}), 201
+def update_jefe(id):
+    if supabase: supabase.table('jefes').update(request.json).eq('id', id).execute()
+    return jsonify({"status": "updated"})
 
-@app.route('/api/jefes/<id>', methods=['DELETE'])
+# API NOVEDADES (ACTUALIZAR)
+@app.route('/api/novedades/<id>', methods=['PUT'])
 @admin_required
-def delete_jefe(id):
-    if supabase: supabase.table('jefes').delete().eq('id', id).execute()
-    return jsonify({"status": "deleted"})
+def update_novedad(id):
+    if supabase: supabase.table('novedades').update(request.json).eq('id', id).execute()
+    return jsonify({"status": "updated"})
 
-# API NOVEDADES
-@app.route('/api/novedades', methods=['GET'])
-def get_novedades():
-    if not supabase: return jsonify([]), 500
-    res = supabase.table('novedades').select('*').order('id', desc=True).execute()
-    return jsonify(res.data)
-
-@app.route('/api/novedades', methods=['POST'])
+# API ARMAS (ACTUALIZAR)
+@app.route('/api/armas/<id>', methods=['PUT'])
 @admin_required
-def post_novedades():
-    if not supabase: return jsonify([]), 500
-    supabase.table('novedades').insert(request.json).execute()
-    return jsonify({"status": "ok"}), 201
+def update_arma(id):
+    if supabase: supabase.table('armas').update(request.json).eq('id', id).execute()
+    return jsonify({"status": "updated"})
 
-@app.route('/api/novedades/<id>', methods=['DELETE'])
+# API MINERALES (ACTUALIZAR)
+@app.route('/api/minerales/<id>', methods=['PUT'])
 @admin_required
-def delete_novedad(id):
-    if supabase: supabase.table('novedades').delete().eq('id', id).execute()
-    return jsonify({"status": "deleted"})
+def update_mineral(id):
+    if supabase: supabase.table('minerales').update(request.json).eq('id', id).execute()
+    return jsonify({"status": "updated"})
 
-# API ARMAS
-@app.route('/api/armas', methods=['GET'])
-def get_armas():
-    if not supabase: return jsonify([]), 500
-    res = supabase.table('armas').select('*').execute()
-    return jsonify(res.data)
-
-@app.route('/api/armas', methods=['POST'])
+# API RECETAS (ACTUALIZAR)
+@app.route('/api/recetas/<id>', methods=['PUT'])
 @admin_required
-def post_armas():
-    if not supabase: return jsonify([]), 500
-    supabase.table('armas').insert(request.json).execute()
-    return jsonify({"status": "ok"}), 201
+def update_receta(id):
+    if supabase: supabase.table('recetas').update(request.json).eq('id', id).execute()
+    return jsonify({"status": "updated"})
 
-@app.route('/api/armas/<id>', methods=['DELETE'])
+# API UBICACIONES (ACTUALIZAR)
+@app.route('/api/ubicaciones/<id>', methods=['PUT'])
 @admin_required
-def delete_arma(id):
-    if supabase: supabase.table('armas').delete().eq('id', id).execute()
-    return jsonify({"status": "deleted"})
-
-# API MINERALES
-@app.route('/api/minerales', methods=['GET'])
-def get_minerales():
-    if not supabase: return jsonify([]), 500
-    res = supabase.table('minerales').select('*').execute()
-    return jsonify(res.data)
-
-@app.route('/api/minerales', methods=['POST'])
-@admin_required
-def post_minerales():
-    if not supabase: return jsonify([]), 500
-    supabase.table('minerales').insert(request.json).execute()
-    return jsonify({"status": "ok"}), 201
-
-@app.route('/api/minerales/<id>', methods=['DELETE'])
-@admin_required
-def delete_mineral(id):
-    if supabase: supabase.table('minerales').delete().eq('id', id).execute()
-    return jsonify({"status": "deleted"})
-
-# API RECETAS
-@app.route('/api/recetas', methods=['GET'])
-def get_recetas():
-    if not supabase: return jsonify([]), 500
-    res = supabase.table('recetas').select('*').execute()
-    return jsonify(res.data)
-
-@app.route('/api/recetas', methods=['POST'])
-@admin_required
-def post_recetas():
-    if not supabase: return jsonify([]), 500
-    supabase.table('recetas').insert(request.json).execute()
-    return jsonify({"status": "ok"}), 201
-
-@app.route('/api/recetas/<id>', methods=['DELETE'])
-@admin_required
-def delete_receta(id):
-    if supabase: supabase.table('recetas').delete().eq('id', id).execute()
-    return jsonify({"status": "deleted"})
-
-# API UBICACIONES
-@app.route('/api/ubicaciones', methods=['GET'])
-def get_ubicaciones():
-    if not supabase: return jsonify([]), 500
-    res = supabase.table('ubicaciones').select('*').execute()
-    return jsonify(res.data)
-
-@app.route('/api/ubicaciones', methods=['POST'])
-@admin_required
-def post_ubicaciones():
-    if not supabase: return jsonify([]), 500
-    supabase.table('ubicaciones').insert(request.json).execute()
-    return jsonify({"status": "ok"}), 201
-
-@app.route('/api/ubicaciones/<id>', methods=['DELETE'])
-@admin_required
-def delete_ubicacion(id):
-    if supabase: supabase.table('ubicaciones').delete().eq('id', id).execute()
-    return jsonify({"status": "deleted"})
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+def update_ubicacion(id):
+    if supabase: supabase.table('ubicaciones').update(request.json).eq('id', id).execute()
+    return jsonify({"status": "updated"})
