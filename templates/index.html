@@ -242,6 +242,33 @@ async function loadUbicaciones() {
                 </div>
             `).join('');
         }
+
+        @app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Captura la contraseña de cualquier campo que use el HTML
+        password = (
+            request.form.get('password') or 
+            request.form.get('clave') or 
+            request.form.get('contrasena') or 
+            request.form.get('pass')
+        )
+        
+        # 1. Busca en la variable de entorno de Render
+        # 2. Si no existe, acepta 'admin123' O la contraseña que tú elijas aquí
+        ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+        
+        # Cambia 'admin123' por la contraseña exacta que quieras usar si no usas variables en Render
+        PASSWORD_DEFECTO = 'admin123'
+
+        if password and (password == ADMIN_PASSWORD or password == PASSWORD_DEFECTO):
+            session['logged_in'] = True
+            return redirect(url_for('admin'))
+            
+        return render_template('login.html', error='Contraseña incorrecta')
+        
+    return render_template('login.html')
+        
     </script>
 </body>
 </html>
