@@ -7,7 +7,146 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <header class="top-nav"><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - MC Wiki</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
     <header class="top-nav">
+        <div class="logo"><a href="/">⚙️ ADMIN WIKI</a></div>
+        <div><a href="/" class="nav-btn">Volver a la Wiki</a></div>
+    </header>
+
+    <div class="container">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="showTab(event, 'jefes')">⚔️ Jefes</button>
+            <button class="tab-btn" onclick="showTab(event, 'novedades')">📢 Novedades / Versiones</button>
+            <button class="tab-btn" onclick="showTab(event, 'armas')">🗡️ Armas</button>
+            <button class="tab-btn" onclick="showTab(event, 'minerales')">💎 Minerales</button>
+            <button class="tab-btn" onclick="showTab(event, 'recetas')">📜 Crafteos</button>
+        </div>
+
+        <!-- JEFES -->
+        <div id="tab-jefes" class="tab-content">
+            <div class="panel">
+                <h2>Añadir Jefe</h2>
+                <form onsubmit="saveItem(event, '/api/jefes', {nombre: j_n.value, descripcion: j_d.value, imagen_url: j_i.value})">
+                    <input type="text" id="j_n" placeholder="Nombre del Jefe" required>
+                    <textarea id="j_d" placeholder="Descripción y drops" required></textarea>
+                    <input type="url" id="j_i" placeholder="URL de la imagen" required>
+                    <button type="submit">Guardar Jefe</button>
+                </form>
+            </div>
+            <div class="panel"><h2>Jefes Actuales</h2><div id="admin-jefes"></div></div>
+        </div>
+
+        <!-- NOVEDADES / VERSIONES -->
+        <div id="tab-novedades" class="tab-content" style="display:none;">
+            <div class="panel">
+                <h2>Añadir Versión / Novedad</h2>
+                <form onsubmit="saveItem(event, '/api/novedades', {version: n_v.value, descripcion: n_d.value})">
+                    <input type="text" id="n_v" placeholder="Título o Versión (Ej: Versión 1.5 - El Abismo)" required>
+                    <textarea id="n_d" placeholder="Descripción de los cambios..." required></textarea>
+                    <button type="submit">Guardar Novedad</button>
+                </form>
+            </div>
+            <div class="panel"><h2>Versiones Publicadas</h2><div id="admin-novedades"></div></div>
+        </div>
+
+        <!-- ARMAS -->
+        <div id="tab-armas" class="tab-content" style="display:none;">
+            <div class="panel">
+                <h2>Añadir Arma Única</h2>
+                <form onsubmit="saveItem(event, '/api/armas', {nombre: a_n.value, danio: a_da.value, obtencion: a_o.value, imagen_url: a_i.value})">
+                    <input type="text" id="a_n" placeholder="Nombre del Arma" required>
+                    <input type="text" id="a_da" placeholder="Daño / Estadísticas" required>
+                    <input type="text" id="a_o" placeholder="Cómo se obtiene" required>
+                    <input type="url" id="a_i" placeholder="URL Imagen" required>
+                    <button type="submit">Guardar Arma</button>
+                </form>
+            </div>
+            <div class="panel"><h2>Armas Registradas</h2><div id="admin-armas"></div></div>
+        </div>
+
+        <!-- MINERALES -->
+        <div id="tab-minerales" class="tab-content" style="display:none;">
+            <div class="panel">
+                <h2>Añadir Mineral</h2>
+                <form onsubmit="saveItem(event, '/api/minerales', {nombre: m_n.value, ubicacion: m_u.value, uso: m_us.value, imagen_url: m_i.value})">
+                    <input type="text" id="m_n" placeholder="Nombre del Mineral" required>
+                    <input type="text" id="m_u" placeholder="Dónde se encuentra (Ej: Capa -50)" required>
+                    <input type="text" id="m_us" placeholder="Uso principal" required>
+                    <input type="url" id="m_i" placeholder="URL Imagen" required>
+                    <button type="submit">Guardar Mineral</button>
+                </form>
+            </div>
+            <div class="panel"><h2>Minerales Registrados</h2><div id="admin-minerales"></div></div>
+        </div>
+
+        <!-- RECETAS -->
+        <div id="tab-recetas" class="tab-content" style="display:none;">
+            <div class="panel">
+                <h2>Añadir Crafteo Personalizado</h2>
+                <form onsubmit="saveItem(event, '/api/recetas', {nombre: r_n.value, ingredientes: r_ing.value, estacion: r_e.value, imagen_url: r_i.value})">
+                    <input type="text" id="r_n" placeholder="Resultado del Crafteo" required>
+                    <textarea id="r_ing" placeholder="Ingredientes necesarios" required></textarea>
+                    <input type="text" id="r_e" placeholder="Mesa necesaria (Ej: Mesa Mágica)" required>
+                    <input type="url" id="r_i" placeholder="URL Imagen" required>
+                    <button type="submit">Guardar Crafteo</button>
+                </form>
+            </div>
+            <div class="panel"><h2>Crafteos Registrados</h2><div id="admin-recetas"></div></div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(evt, name) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + name).style.display = 'block';
+            evt.currentTarget.classList.add('active');
+        }
+
+        async function saveItem(e, url, data) {
+            e.preventDefault();
+            await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+            window.location.reload();
+        }
+
+        async function removeItem(url, id) {
+            if(confirm('¿Seguro que deseas eliminar este registro?')) {
+                await fetch(url + '/' + id, { method: 'DELETE' });
+                window.location.reload();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadList('/api/jefes', 'admin-jefes', item => `<b>${item.nombre}</b>`, '/api/jefes');
+            loadList('/api/novedades', 'admin-novedades', item => `<b>${item.version}</b>`, '/api/novedades');
+            loadList('/api/armas', 'admin-armas', item => `<b>${item.nombre}</b>`, '/api/armas');
+            loadList('/api/minerales', 'admin-minerales', item => `<b>${item.nombre}</b>`, '/api/minerales');
+            loadList('/api/recetas', 'admin-recetas', item => `<b>${item.nombre}</b>`, '/api/recetas');
+        });
+
+        async function loadList(apiUrl, elementId, formatText, deleteUrl) {
+            const res = await fetch(apiUrl);
+            const items = await res.json();
+            const el = document.getElementById(elementId);
+            if(!items.length) return el.innerHTML = '<p>Sin datos cargados.</p>';
+            el.innerHTML = items.map(item => `
+                <div class="card-item" style="justify-content:space-between;">
+                    <div>${formatText(item)}</div>
+                    <button class="btn-danger" onclick="removeItem('${deleteUrl}', '${item.id}')">Borrar</button>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
         <div class="logo"><a href="/">MC SERVER WIKI</a></div>
         <div><a href="/" class="nav-btn">Volver a la Wiki</a></div>
     </header>
