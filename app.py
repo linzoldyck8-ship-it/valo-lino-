@@ -45,12 +45,24 @@ def admin():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        password = request.form.get('password')
-        ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
-        if password == ADMIN_PASSWORD:
+        # Captura la contraseña independientemente del nombre del input HTML
+        password = (
+            request.form.get('password') or 
+            request.form.get('clave') or 
+            request.form.get('contrasena') or 
+            request.form.get('pass')
+        )
+        
+        ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+        # Si no configuraste variable en Render, la contraseña por defecto será 'admin123'
+        PASSWORD_DEFECTO = 'admin123'
+
+        if password and (password == ADMIN_PASSWORD or password == PASSWORD_DEFECTO):
             session['logged_in'] = True
             return redirect(url_for('admin'))
+            
         return render_template('login.html', error='Contraseña incorrecta')
+        
     return render_template('login.html')
 
 @app.route('/logout')
@@ -117,3 +129,6 @@ def delete_item(tabla, id):
     except Exception as e:
         print(f"Error al eliminar de {tabla}:", e)
         return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
