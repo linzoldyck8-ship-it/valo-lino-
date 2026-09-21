@@ -1,279 +1,364 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-from streamlit_autorefresh import st_autorefresh
-import gspread
-from google.oauth2.service_account import Credentials
-
-# Configuración de la página con URL directa para el ícono
-st.set_page_config(
-    page_title="Scarlet Valorant - Reclutamiento",
-    page_icon="https://raw.githubusercontent.com/linzoldyck8-ship-it/valo-lino-/main/SCARLET.png",  # <-- PEGA AQUÍ LA URL DIRECTA DE TU ÍCONO
-    layout="wide"
-)
-
-# --- ESTILOS CSS AVANZADOS ---
-st.markdown("""
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki - Mi Servidor de Minecraft</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        wiki: {
+                            dark: '#0a0a0a',
+                            nav: '#111111',
+                            sidebar: '#1a1a1a',
+                            bg: '#141b26',
+                            card: '#1e293b',
+                            cardhover: '#334155',
+                            border: '#334155',
+                            accent: '#3b82f6',
+                            mcgreen: '#22c55e',
+                            gold: '#fbbf24'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-    /* CAMBIO A ARIAL BLACK */
-    html, body, [class*="css"] {
-        font-family: 'Arial Black', Arial, sans-serif !important;
-    }
+        body {
+            /* Simulating a Minecraft night sky / end dimension background */
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 50%, #020617 100%);
+            background-attachment: fixed;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
 
-    .stApp {
-        background-image: url("https://wallpapers.com/images/hd/pitch-black-leather-like-material-2w1vwucx1o9xzfvu.jpg"); /* <-- PEGA AQUÍ LA URL DE TU FONDO */
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        color: #f0f2f6;
-    }
-    
-    [data-testid="stSidebar"] {
-        background-color: rgba(18, 22, 31, 0.95);
-        border-right: 2px solid #ff4655;
-        box-shadow: 4px 0px 15px rgba(255, 70, 85, 0.2);
-    }
-    
-    [data-testid="stMetric"] {
-        background-color: rgba(22, 27, 34, 0.85);
-        border: 1px solid rgba(255, 70, 85, 0.3);
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(255, 70, 85, 0.1);
-    }
-    
-    [data-testid="stMetricLabel"] {
-        color: #8b949e;
-        font-size: 1.2rem !important;
-        font-weight: 600;
-    }
-    
-    [data-testid="stMetricValue"] {
-        color: #ff4655 !important;
-        text-shadow: 0 0 8px rgba(255, 70, 85, 0.4);
-        font-size: 2.2rem !important;
-    }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+        }
 
-    h1, h2, h3 {
-        font-family: 'Arial Black', Arial, sans-serif !important;
-        letter-spacing: 1px;
-    }
-    
-    h1 {
-        color: #ffffff;
-        text-shadow: 0 0 12px rgba(255, 70, 85, 0.5);
-    }
-
-    /* --- AUMENTAR FUENTE DE LAS SELECCIONES Y FORMULARIO --- */
-    div[data-testid="stForm"] label p {
-        font-size: 1.5rem !important;
-        font-weight: bold;
-    }
-    
-    div[data-testid="stForm"] div[data-baseweb="select"], 
-    div[data-testid="stForm"] input {
-        font-size: 1.3rem !important;
-    }
-
-    /* Aumentar el tamaño de las opciones desplegables */
-    ul[role="listbox"] li {
-        font-size: 1.3rem !important;
-    }
-    /* ----------------------------------------------------------- */
-
-    .stButton>button {
-        background-color: #ff4655;
-        color: white;
-        border-radius: 6px;
-        border: 1px solid #ff6b78;
-        font-weight: bold;
-        font-family: 'Arial Black', Arial, sans-serif !important;
-        font-size: 1.3rem !important; 
-        box-shadow: 0 0 10px rgba(255, 70, 85, 0.4);
-        transition: 0.3s;
-        padding: 10px 24px;
-    }
-    
-    .stButton>button:hover {
-        background-color: #fa5c68;
-        box-shadow: 0 0 18px rgba(255, 70, 85, 0.8);
-        color: white;
-    }
+        .minecraft-text-shadow {
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.7);
+        }
     </style>
-""", unsafe_allow_html=True)
+</head>
+<body class="antialiased min-h-screen flex flex-col pt-14 pl-0 md:pl-16">
 
-# Configuración de Google Sheets API para escritura
-SHEET_ID = "1TJAoGBPhpxKvzLR9iza1vCgFcBb8rq7EDNz8Fl7knCA"
-scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-
-@st.cache_resource(ttl=60)
-def conectar_gsheets():
-    try:
-        creds_dict = dict(st.secrets["gcp_service_account"])
+    <!-- Top Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full h-14 bg-wiki-nav border-b border-wiki-border z-50 flex items-center justify-between px-4">
+        <div class="flex items-center gap-4">
+            <div class="md:hidden text-white cursor-pointer">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </div>
+            <a href="#" class="text-white font-black text-xl tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-cube text-wiki-mcgreen"></i> WIKI<span class="text-gray-400 font-normal">CRAFT</span>
+            </a>
+        </div>
         
-        if "private_key" in creds_dict:
-            creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
-            
-        creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
-        client = gspread.authorize(creds)
-        sheet = client.open_by_key(SHEET_ID).sheet1
-        return sheet
-    except Exception as e:
-        st.sidebar.error(f"❌ Error de conexión: {e}")
-        return None
+        <div class="hidden md:flex flex-1 max-w-xl mx-4 relative">
+            <input type="text" placeholder="Buscar en la wiki..." class="w-full bg-gray-800 text-white border border-gray-700 rounded-full py-1.5 pl-10 pr-4 focus:outline-none focus:border-wiki-accent transition-colors">
+            <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
 
-sheet_ws = conectar_gsheets()
+        <div class="flex items-center gap-3">
+            <button class="hidden sm:block text-sm font-semibold text-gray-300 hover:text-white">INICIAR SESIÓN</button>
+            <button class="bg-wiki-gold text-black font-bold text-xs sm:text-sm px-4 py-1.5 rounded-sm hover:bg-yellow-400 transition-colors uppercase tracking-wide">
+                Crear Cuenta
+            </button>
+        </div>
+    </nav>
 
-# --- PESTAÑAS PRINCIPALES (Orden Invertido) ---
-tab_formulario, tab_dashboard = st.tabs(["📝 Postularme al Roster", "📊 Panel Gerencial (Dashboard)"])
+    <!-- Left Sidebar (Desktop) -->
+    <aside class="fixed top-14 left-0 w-16 h-[calc(100vh-3.5rem)] bg-wiki-sidebar border-r border-wiki-border z-40 hidden md:flex flex-col items-center py-4 gap-6 overflow-y-auto">
+        <div class="flex flex-col items-center gap-1 text-gray-400 hover:text-wiki-accent cursor-pointer group">
+            <i class="fa-solid fa-house text-xl group-hover:scale-110 transition-transform"></i>
+            <span class="text-[10px] uppercase">Inicio</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 text-gray-400 hover:text-wiki-accent cursor-pointer group">
+            <i class="fa-solid fa-compass text-xl group-hover:scale-110 transition-transform"></i>
+            <span class="text-[10px] uppercase">Explora</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 text-gray-400 hover:text-wiki-accent cursor-pointer group">
+            <i class="fa-solid fa-bookmark text-xl group-hover:scale-110 transition-transform"></i>
+            <span class="text-[10px] uppercase">Guardado</span>
+        </div>
+        <div class="flex flex-col items-center gap-1 text-gray-400 hover:text-wiki-accent cursor-pointer group">
+            <i class="fa-solid fa-clock-rotate-left text-xl group-hover:scale-110 transition-transform"></i>
+            <span class="text-[10px] uppercase">Historial</span>
+        </div>
+        <div class="mt-auto flex flex-col items-center gap-1 text-gray-400 hover:text-white cursor-pointer group">
+            <i class="fa-solid fa-ellipsis text-xl"></i>
+            <span class="text-[10px] uppercase">Más</span>
+        </div>
+    </aside>
 
-# --- APARTADO FORMULARIO (Se muestra primero por defecto) ---
-with tab_formulario:
-    st.title("📝 Formulario de Postulación - Scarlet Valorant")
-    st.markdown("Completa tus datos correctamente para postularte al roster competitivo. Tu información se registrará de inmediato.")
-
-    with st.form("form_postulacion"):
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            contacto_discord = st.text_input("Contacto discord")
-            riot_id = st.text_input("Riot ID (Ej: Scarlet#NA1)")
-            rol_principal = st.selectbox("Rol Principal", ["Duelista", "Iniciador", "Controlador", "Centinela", "Flex"])
-            rol_secundario = st.selectbox("Rol Secundario", ["Duelista", "Iniciador", "Controlador", "Centinela", "Flex"])
-            rango_actual = st.selectbox("Rango Actual", ["Hierro-Plata", "Oro", "Platino", "Diamante", "Ascendente", "Inmortal 1", "Inmortal 2", "Inmortal 3", "Radiante"])
-
-        with col_f2:
-            peak_elo = st.selectbox("Peak Elo (Máximo Rango Histórico)", ["Hierro-Plata", "Oro", "Platino", "Diamante", "Ascendente", "Inmortal 1", "Inmortal 2", "Inmortal 3", "Radiante"])
-            baneos = st.selectbox("Historial de Baneos / Toxicidad", ["Limpio", "Advertencia", "Chat Ban", "Ranked Ban", "Permanente/HWID"])
-            horario = st.selectbox("Horario Disponible", ["Mañana", "Tarde", "Noche", "Madrugada", "Flexible"])
-            notas = st.text_input("Link de Tracker.gg o VLR.gg / Notas")
-
-        submitted = st.form_submit_button("🚀 Enviar Postulación")
-
-        if submitted:
-            if not contacto_discord or not riot_id:
-                st.error("⚠️ Por favor completa al menos tu Contacto discord y tu Riot ID.")
-            elif not sheet_ws:
-                st.error("⚠️ Error de conexión con Google Sheets. Verifica el archivo credentials.json.")
-            else:
-                try:
-                    data_rows = sheet_ws.get_all_values()
-                    nuevo_id = len(data_rows)
-                    
-                    nueva_fila = [
-                        str(nuevo_id),
-                       contacto_discord,
-                        riot_id,
-                        rol_principal,
-                        rol_secundario,
-                        rango_actual,
-                        peak_elo,
-                        baneos,
-                        horario,
-                        "Nuevo",
-                        notas
-                    ]
-                    
-                    sheet_ws.append_row(nueva_fila)
-                    st.success("🎉 ¡Postulación enviada con éxito! Ya estás registrado en la base de datos oficial de Scarlet.")
-                except Exception as e:
-                    st.error(f"Hubo un error al registrar tus datos: {e}")
-
-# --- APARTADO DASHBOARD (Protegido con contraseña) ---
-with tab_dashboard:
-    st.subheader("🔒 Acceso Restringido")
-    # Ingreso de contraseña
-    clave_acceso = st.text_input("Ingrese la clave para ver el panel gerencial", type="password")
-    
-    # CAMBIA "scarletadmin" POR LA CONTRASEÑA QUE DESEES
-    if clave_acceso == "cazuela":
+    <!-- Main Content Wrapper -->
+    <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8 relative z-10">
         
-        count = st_autorefresh(interval=5000, limit=None, key="scarlet_autorefresh")
-
-        st.title("🔥 POSTULACIONES SCARLET VALORANT")
-        st.markdown("Panel de control ejecutivo y monitoreo en tiempo real del roster competitivo.")
-
-        url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
-
-        st.sidebar.markdown("## ⚙️ Panel de Control")
-        if st.sidebar.button("🔄 Sincronizar Datos"):
-            st.cache_data.clear()
-            st.success("¡Sincronizado correctamente!")
-
-        st.sidebar.markdown("---")
-        st.sidebar.markdown("### 🔍 Filtros de Búsqueda")
-
-        @st.cache_data(ttl=2)
-        def load_data():
-            try:
-                df = pd.read_csv(url)
-                return df
-            except Exception as e:
-                return pd.DataFrame()
-
-        df = load_data()
-
-        if df.empty:
-            st.warning("⚠️ No se pudieron cargar los datos. Verifica que el Google Sheet sea público.")
-        else:
-            df.columns = [str(c).strip() for c in df.columns]
-
-            total_postulantes = len(df.dropna(subset=['Contacto discord'])) if 'Contacto discord' in df.columns else len(df)
-            tryouts_activos = len(df[df['Estado'].astype(str).str.strip() == 'Tryout']) if 'Estado' in df.columns else 0
-            aceptados = len(df[df['Estado'].astype(str).str.strip() == 'Aceptado']) if 'Estado' in df.columns else 0
-
-            baneos_alerta = 0
-            col_baneos = None
-            for c in df.columns:
-                if 'bano' in c.lower() or 'baneo' in c.lower() or 'toxicidad' in c.lower():
-                    col_baneos = c
-                    break
-            if col_baneos:
-                baneos_alerta = len(df[df[col_baneos].astype(str).str.strip().isin(['Chat Ban', 'Ranked Ban', 'Permanente/HWID'])])
-
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Postulantes Totales", total_postulantes)
-            col2.metric("Pruebas Activas", tryouts_activos, delta="En proceso")
-            col3.metric("Plantel Aceptado", aceptados)
-            col4.metric("Alertas de Baneos", baneos_alerta, delta_color="inverse" if baneos_alerta > 0 else "normal")
-
-            st.markdown("---")
-
-            rol_opciones = ["Todos"] + list(df['Rol Principal'].dropna().unique()) if 'Rol Principal' in df.columns else ["Todos"]
-            rol_filtro = st.sidebar.selectbox("Rol Principal", rol_opciones)
+        <!-- Main Glass Container (Fandom Wiki Style) -->
+        <div class="glass-panel rounded-xl shadow-2xl overflow-hidden mb-8">
             
-            estado_opciones = ["Todos"] + list(df['Estado'].dropna().unique()) if 'Estado' in df.columns else ["Todos"]
-            estado_filtro = st.sidebar.selectbox("Estado del Proceso", estado_opciones)
+            <!-- Wiki Header Section -->
+            <div class="bg-gradient-to-b from-slate-800 to-slate-900 border-b border-wiki-border p-6 flex flex-col md:flex-row items-center gap-6 relative">
+                <!-- Floating background decorative elements -->
+                <div class="absolute top-0 right-0 opacity-10 pointer-events-none">
+                    <i class="fa-solid fa-dragon text-9xl"></i>
+                </div>
 
-            df_filtered = df.copy()
-            if rol_filtro != "Todos" and 'Rol Principal' in df.columns:
-                df_filtered = df_filtered[df_filtered['Rol Principal'] == rol_filtro]
-            if estado_filtro != "Todos" and 'Estado' in df.columns:
-                df_filtered = df_filtered[df_filtered['Estado'] == estado_filtro]
+                <!-- Server Logo/Icon -->
+                <div class="w-24 h-24 md:w-32 md:h-32 bg-gray-900 border-4 border-wiki-border rounded-lg shadow-lg flex items-center justify-center relative overflow-hidden flex-shrink-0">
+                    <img src="https://placehold.co/200x200/1e293b/a8a29e?text=Server+Logo" alt="Server Logo" class="w-full h-full object-cover">
+                </div>
+                
+                <!-- Wiki Info & Nav -->
+                <div class="flex-1 text-center md:text-left z-10">
+                    <p class="text-gray-400 text-sm tracking-widest uppercase mb-1">Bienvenido a</p>
+                    <h1 class="text-3xl md:text-5xl font-black text-white mb-2 minecraft-text-shadow">WIKI DEL SERVIDOR</h1>
+                    <p class="text-gray-300 text-sm md:text-base max-w-2xl">La fuente principal de información sobre nuestro servidor de Minecraft. Descubre guías de supervivencia, información sobre jefes custom, economía y especializaciones de clases.</p>
+                    
+                    <!-- Wiki Sub Navigation -->
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-6 text-sm font-semibold">
+                        <a href="#" class="text-white border-b-2 border-wiki-accent pb-1 flex items-center gap-2"><i class="fa-solid fa-book-open"></i> EXPLORA</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-khanda"></i> OBJETOS <i class="fa-solid fa-caret-down text-xs"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-skull"></i> JEFES <i class="fa-solid fa-caret-down text-xs"></i></a>
+                    </div>
+                </div>
 
-            col_g1, col_g2 = st.columns(2)
+                <!-- Top Right Stats -->
+                <div class="hidden lg:flex flex-col items-end text-right z-10 border-l border-wiki-border pl-6">
+                    <div class="text-3xl font-black text-white">1,420</div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wider">Páginas</div>
+                    <div class="flex gap-3 mt-2 text-gray-400">
+                        <i class="fa-solid fa-comments hover:text-white cursor-pointer"></i>
+                        <i class="fa-solid fa-sun hover:text-white cursor-pointer"></i>
+                    </div>
+                </div>
+            </div>
 
-            with col_g1:
-                st.subheader("📊 Distribución por Estado")
-                if 'Estado' in df.columns and not df['Estado'].dropna().empty:
-                    fig_estado = px.pie(df, names='Estado', hole=0.5, color_discrete_sequence=px.colors.sequential.Reds)
-                    fig_estado.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#f0f2f6')
-                    st.plotly_chart(fig_estado, use_container_width=True)
+            <!-- Content Grid Area -->
+            <div class="p-4 md:p-6 bg-slate-900/50">
+                
+                <!-- Full Width Banner Alert -->
+                <div class="w-full bg-gradient-to-r from-green-900/40 to-blue-900/40 border border-green-700/50 rounded-lg p-4 mb-6 flex items-center gap-4 hover:border-green-500 transition-colors cursor-pointer">
+                    <i class="fa-solid fa-map text-2xl text-wiki-mcgreen drop-shadow-lg"></i>
+                    <div>
+                        <h3 class="text-white font-bold text-lg">Guía del Principiante</h3>
+                        <p class="text-gray-300 text-sm">¿Acabas de unirte al servidor? Lee esta guía para sobrevivir tu primera noche y elegir tu clase.</p>
+                    </div>
+                </div>
 
-            with col_g2:
-                st.subheader("⚔️ Demanda por Rol")
-                if 'Rol Principal' in df.columns and not df['Rol Principal'].dropna().empty:
-                    rol_counts = df['Rol Principal'].value_counts().reset_index()
-                    rol_counts.columns = ['Rol', 'Cantidad']
-                    fig_roles = px.bar(rol_counts, x='Rol', y='Cantidad', 
-                                       color='Rol', color_discrete_sequence=['#ff4655', '#e94560', '#ff6b6b', '#c70039', '#900c3f'])
-                    fig_roles.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font_color='#f0f2f6', showlegend=False)
-                    st.plotly_chart(fig_roles, use_container_width=True)
+                <!-- 3 Column Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left Column -->
+                    <div class="flex flex-col gap-6">
+                        <!-- Welcome Card -->
+                        <div class="bg-wiki-card border border-wiki-border rounded-lg overflow-hidden group hover:border-gray-500 transition-colors">
+                            <div class="bg-slate-800 p-3 border-b border-wiki-border flex items-center gap-2">
+                                <i class="fa-solid fa-tree text-wiki-mcgreen"></i>
+                                <h2 class="font-bold text-white">¡Bienvenido a la Wiki!</h2>
+                            </div>
+                            <div class="p-4 text-sm text-gray-300 space-y-3">
+                                <p>La enciclopedia en español dedicada a recopilar toda la información sobre nuestro Servidor Custom de Minecraft.</p>
+                                <p>Aquí encontrarás detalles sobre mecánicas únicas, economía regulada, facciones y el lore en constante expansión creado por nuestra comunidad.</p>
+                            </div>
+                        </div>
 
-            st.subheader("📋 Registro Detallado de Postulantes")
-            possible_cols = ['Nº', 'Contacto discord', 'Riot ID (#TAG)', 'Rol Principal', 'Rango Actual', 'Peak Elo', 'Baneos / Toxicidad', 'Estado']
-            cols_to_show = [c for c in possible_cols if c in df_filtered.columns]
-            st.dataframe(df_filtered[cols_to_show], use_container_width=True)
-            
-    elif clave_acceso:
-        st.error("❌ Contraseña incorrecta. Acceso denegado.")
+                        <!-- Statistics Card -->
+                        <div class="bg-wiki-card border border-wiki-border rounded-lg overflow-hidden relative">
+                            <div class="bg-slate-800 p-3 border-b border-wiki-border flex justify-between items-center">
+                                <h2 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-400"></i> Estadísticas</h2>
+                                <i class="fa-solid fa-server text-gray-400"></i>
+                            </div>
+                            <div class="p-4 text-sm text-center grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="text-gray-400 text-xs uppercase mb-1">Páginas</div>
+                                    <div class="text-2xl font-bold text-white">1,420</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs uppercase mb-1">Ediciones</div>
+                                    <div class="text-2xl font-bold text-white">45,892</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs uppercase mb-1">Archivos</div>
+                                    <div class="text-2xl font-bold text-white">3,105</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs uppercase mb-1">Usuarios</div>
+                                    <div class="text-2xl font-bold text-white">842</div>
+                                </div>
+                            </div>
+                            <div class="p-2 bg-slate-800/50 text-center text-xs text-gray-400 border-t border-wiki-border">
+                                Actualizado: Hoy
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Column -->
+                    <div class="flex flex-col gap-6 lg:col-span-2">
+                        
+                        <!-- Special Feature Banner (e.g. New Update) -->
+                        <div class="bg-wiki-card border border-wiki-border rounded-lg overflow-hidden relative group">
+                            <div class="h-40 overflow-hidden relative">
+                                <img src="https://placehold.co/800x300/1e293b/475569?text=Actualizacion+1.5+End+Update" alt="Update Banner" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-t from-wiki-card to-transparent"></div>
+                                <div class="absolute bottom-4 left-4">
+                                    <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wider mb-2 inline-block">Nuevo Parche</span>
+                                    <h2 class="text-2xl font-black text-white minecraft-text-shadow">Temporada 4: El Vacío Resurge</h2>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-wiki-card text-sm text-gray-300">
+                                <p>La actualización 1.5 ya está disponible en el servidor. Hemos renovado completamente la dimensión del End, añadido 3 nuevos biomas personalizados y el sistema de forja rúnica. <a href="#" class="text-wiki-accent hover:underline">Leer las notas del parche completas...</a></p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Updates/Versions Column -->
+                            <div class="bg-wiki-card border border-wiki-border rounded-lg overflow-hidden">
+                                <div class="bg-slate-800 p-3 border-b border-wiki-border flex justify-between items-center">
+                                    <h2 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-code-merge text-purple-400"></i> Últimas Versiones</h2>
+                                    <div class="flex gap-2 text-gray-400">
+                                        <i class="fa-brands fa-java hover:text-white cursor-pointer"></i>
+                                        <i class="fa-brands fa-windows hover:text-white cursor-pointer"></i>
+                                    </div>
+                                </div>
+                                <div class="p-0 text-sm text-gray-300">
+                                    <ul class="divide-y divide-wiki-border">
+                                        <li class="p-3 hover:bg-wiki-cardhover transition-colors cursor-pointer flex justify-between items-center">
+                                            <div>
+                                                <span class="block font-bold text-white text-base">v1.5.2 (Actual)</span>
+                                                <span class="text-xs text-gray-400">Hotfix de Economía</span>
+                                            </div>
+                                            <span class="text-wiki-accent text-xs">Hoy</span>
+                                        </li>
+                                        <li class="p-3 hover:bg-wiki-cardhover transition-colors cursor-pointer flex justify-between items-center">
+                                            <div>
+                                                <span class="block font-bold text-white text-base">v1.5.0</span>
+                                                <span class="text-xs text-gray-400">The Void Resurgence</span>
+                                            </div>
+                                            <span class="text-gray-500 text-xs">Hace 2 sem</span>
+                                        </li>
+                                        <li class="p-3 hover:bg-wiki-cardhover transition-colors cursor-pointer flex justify-between items-center">
+                                            <div>
+                                                <span class="block font-bold text-gray-400 text-base">v1.4.9</span>
+                                                <span class="text-xs text-gray-500">Mascotas Custom</span>
+                                            </div>
+                                            <span class="text-gray-500 text-xs">Hace 1 mes</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Bosses Section (Full Width Grid Below) -->
+                <div class="mt-6 bg-wiki-card border border-wiki-border rounded-lg overflow-hidden">
+                    <div class="bg-slate-800 p-4 border-b border-wiki-border flex justify-between items-center">
+                        <h2 class="font-bold text-lg text-white flex items-center gap-2"><i class="fa-solid fa-skull-crossbones text-red-500"></i> Jefes Descubiertos</h2>
+                        <a href="#" class="text-xs text-wiki-accent hover:underline uppercase font-bold tracking-wider">Ver Todos</a>
+                    </div>
+                    <div class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        
+                        <!-- Boss Card 1 -->
+                        <div class="group cursor-pointer">
+                            <div class="aspect-square bg-slate-900 rounded border border-wiki-border overflow-hidden relative mb-2">
+                                <img src="https://placehold.co/200x200/1e1b4b/a5b4fc?text=Rey+Slime" alt="Rey Slime Mutante" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                <div class="absolute inset-0 border-2 border-transparent group-hover:border-wiki-accent transition-colors rounded"></div>
+                            </div>
+                            <h3 class="text-center text-sm font-bold text-gray-200 group-hover:text-white">Rey Slime Mutante</h3>
+                            <p class="text-center text-xs text-red-400 font-semibold">Nv. 15</p>
+                        </div>
+                        
+                        <!-- Boss Card 2 -->
+                        <div class="group cursor-pointer">
+                            <div class="aspect-square bg-slate-900 rounded border border-wiki-border overflow-hidden relative mb-2">
+                                <img src="https://placehold.co/200x200/3f3f46/f4f4f5?text=Golem+Hierro" alt="Golem Primigenio" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                <div class="absolute inset-0 border-2 border-transparent group-hover:border-wiki-accent transition-colors rounded"></div>
+                            </div>
+                            <h3 class="text-center text-sm font-bold text-gray-200 group-hover:text-white">Golem Primigenio</h3>
+                            <p class="text-center text-xs text-red-400 font-semibold">Nv. 30</p>
+                        </div>
+
+                        <!-- Boss Card 3 -->
+                        <div class="group cursor-pointer">
+                            <div class="aspect-square bg-slate-900 rounded border border-wiki-border overflow-hidden relative mb-2">
+                                <img src="https://placehold.co/200x200/4c1d95/c4b5fd?text=Wither+Rey" alt="Wither Supremo" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                <div class="absolute inset-0 border-2 border-transparent group-hover:border-wiki-accent transition-colors rounded"></div>
+                            </div>
+                            <h3 class="text-center text-sm font-bold text-gray-200 group-hover:text-white">Wither Supremo</h3>
+                            <p class="text-center text-xs text-red-400 font-semibold">Nv. 50</p>
+                        </div>
+
+                        <!-- Boss Card 4 -->
+                        <div class="group cursor-pointer">
+                            <div class="aspect-square bg-slate-900 rounded border border-wiki-border overflow-hidden relative mb-2">
+                                <img src="https://placehold.co/200x200/020617/cbd5e1?text=Dragon+Vacio" alt="Dragón del Vacío" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                                <div class="absolute inset-0 border-2 border-transparent group-hover:border-wiki-accent transition-colors rounded"></div>
+                                <div class="absolute top-1 right-1 bg-wiki-gold text-black text-[10px] font-bold px-1.5 rounded">NUEVO</div>
+                            </div>
+                            <h3 class="text-center text-sm font-bold text-wiki-gold group-hover:text-yellow-300">Dragón del Vacío</h3>
+                            <p class="text-center text-xs text-red-500 font-bold">Nv. 100</p>
+                        </div>
+
+                        <!-- Boss Card 5 (Hidden on smaller screens to keep row even) -->
+                        <div class="group cursor-pointer hidden lg:block">
+                            <div class="aspect-square bg-slate-900 rounded border border-dashed border-gray-600 flex flex-col items-center justify-center text-gray-500 hover:text-white hover:border-white transition-colors mb-2">
+                                <i class="fa-solid fa-question text-3xl mb-2"></i>
+                                <span class="text-xs font-bold uppercase">Desconocido</span>
+                            </div>
+                            <h3 class="text-center text-sm font-bold text-gray-500">???</h3>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Add subtle parallax effect to the background header elements
+        document.addEventListener('mousemove', (e) => {
+            const dragon = document.querySelector('.fa-dragon');
+            if(dragon) {
+                const x = (window.innerWidth - e.pageX * 2) / 90;
+                const y = (window.innerHeight - e.pageY * 2) / 90;
+                dragon.style.transform = `translate(${x}px, ${y}px) rotate(-15deg)`;
+            }
+        });
+    </script>
+</body>
+</html>
