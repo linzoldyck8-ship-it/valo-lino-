@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⛏️SCARLETCRAFT Wiki</title>
+    <title>SCARLETCRAFT WIKI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header class="top-nav">
         <div class="nav-left">
-            <div class="logo"><a href="javascript:void(0)" onclick="switchSection('inicio')">⚡SCARLETCRAFT WIKI</a></div>
+            <div class="logo"><a href="javascript:void(0)" onclick="switchSection('inicio')">⚡ SCARLETCRAFT WIKI</a></div>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="javascript:void(0)" onclick="switchSection('inicio')" class="nav-link">Inicio</a></li>
                 <li class="nav-item">
                     <a href="javascript:void(0)" class="nav-link">Categorías ▾</a>
                     <ul class="dropdown-menu">
                         <li><a href="javascript:void(0)" onclick="switchSection('jefes')">⚔️ Jefes Descubiertos</a></li>
-                        <li><a href="javascript:void(0)" onclick="switchSection('armas')">🗡️ Armas y Armaduras especiales</a></li>
+                        <li><a href="javascript:void(0)" onclick="switchSection('armas')">🗡️ Armas y Armaduras</a></li>
                         <li><a href="javascript:void(0)" onclick="switchSection('minerales')">💎 Minerales</a></li>
                         <li><a href="javascript:void(0)" onclick="switchSection('recetas')">📜 Crafteos Personalizados</a></li>
                         <li><a href="javascript:void(0)" onclick="switchSection('ubicaciones')">📍 Ubicaciones Importantes</a></li>
@@ -29,7 +29,7 @@
     </header>
 
     <div class="container">
-        <!-- SECCIÓN: INICIO (RESUMEN GENERAL) -->
+        <!-- SECCIÓN 1: INICIO -->
         <div id="sec-inicio" class="wiki-section active">
             <div class="hero-banner">
                 <h1>BIENVENIDO A LA WIKI OFICIAL DE SCARLETCRAFT</h1>
@@ -43,7 +43,7 @@
                 </div>
                 <div class="category-card" onclick="switchSection('armas')">
                     <h2>🗡️ Armas y Armaduras</h2>
-                    <p>Descubre el armamento exclusivo,las armaduras, sus estadisticas y cómo conseguirlo.</p>
+                    <p>Descubre el armamento exclusivo, las armaduras, sus estadísticas y cómo conseguirlo.</p>
                 </div>
                 <div class="category-card" onclick="switchSection('minerales')">
                     <h2>💎 Minerales</h2>
@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <!-- SECCIÓN: JEFES -->
+        <!-- SECCIÓN 2: JEFES -->
         <div id="sec-jefes" class="wiki-section">
             <div class="section-header">
                 <h2>⚔️ Jefes Descubiertos</h2>
@@ -73,16 +73,16 @@
             <div id="view-jefes" class="cards-grid"></div>
         </div>
 
-        <!-- SECCIÓN: ARMAS -->
+        <!-- SECCIÓN 3: ARMAS Y ARMADURAS -->
         <div id="sec-armas" class="wiki-section">
             <div class="section-header">
-                <h2>🗡️ Armas Únicas y Armaduras</h2>
+                <h2>🗡️ Armas y Armaduras</h2>
                 <p>Catálogo de armas y armaduras con sus atributos y métodos de obtención.</p>
             </div>
             <div id="view-armas" class="cards-grid"></div>
         </div>
 
-        <!-- SECCIÓN: MINERALES -->
+        <!-- SECCIÓN 4: MINERALES -->
         <div id="sec-minerales" class="wiki-section">
             <div class="section-header">
                 <h2>💎 Minerales del Servidor</h2>
@@ -91,7 +91,7 @@
             <div id="view-minerales" class="cards-grid"></div>
         </div>
 
-        <!-- SECCIÓN: CRAFTEOS -->
+        <!-- SECCIÓN 5: CRAFTEOS -->
         <div id="sec-recetas" class="wiki-section">
             <div class="section-header">
                 <h2>📜 Crafteos Personalizados</h2>
@@ -100,16 +100,16 @@
             <div id="view-recetas" class="cards-grid"></div>
         </div>
 
-        <!-- SECCIÓN: UBICACIONES -->
+        <!-- SECCIÓN 6: UBICACIONES -->
         <div id="sec-ubicaciones" class="wiki-section">
             <div class="section-header">
                 <h2>📍 Ubicaciones Importantes</h2>
-                <p>Puntos de interés, coordenadas de jefes y estructuras especiales.</p>
+                <p>Puntos de interés, lugares y áreas especiales.</p>
             </div>
             <div id="view-ubicaciones" class="cards-grid"></div>
         </div>
 
-        <!-- SECCIÓN: NOVEDADES / ACTUALIZACIONES -->
+        <!-- SECCIÓN 7: ACTUALIZACIONES -->
         <div id="sec-novedades" class="wiki-section">
             <div class="section-header">
                 <h2>📢 Historial de Actualizaciones</h2>
@@ -137,138 +137,123 @@
         });
 
         async function loadJefes() {
-            const res = await fetch('/api/jefes');
-            const data = await res.json();
-            const c = document.getElementById('view-jefes');
-            if(!data.length) return c.innerHTML = '<p class="empty">No hay jefes registrados.</p>';
-            c.innerHTML = data.map(j => `
-                <div class="detail-card border-red">
-                    <div class="card-img-wrapper">
-                        <img src="${j.imagen_url || 'https://via.placeholder.com/300'}" alt="${j.nombre}">
+            try {
+                const res = await fetch('/api/jefes');
+                const data = await res.json();
+                const c = document.getElementById('view-jefes');
+                if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay jefes registrados.</p>';
+                c.innerHTML = data.map(j => `
+                    <div class="detail-card border-red">
+                        <div class="card-img-wrapper">
+                            <img src="${j.imagen_url || 'https://via.placeholder.com/300'}" alt="${j.nombre}">
+                        </div>
+                        <div class="card-body">
+                            <h3>${j.nombre}</h3>
+                            <p class="description" style="white-space: pre-line;">${j.descripcion || ''}</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h3>${j.nombre}</h3>
-                        <p class="description">${j.descripcion}</p>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
+            } catch(e) { console.error("Error cargando jefes:", e); }
         }
 
         async function loadArmas() {
-            const res = await fetch('/api/armas');
-            const data = await res.json();
-            const c = document.getElementById('view-armas');
-            if(!data.length) return c.innerHTML = '<p class="empty">No hay armas registradas.</p>';
-            c.innerHTML = data.map(a => `
-                <div class="detail-card border-blue">
-                    <div class="card-img-wrapper">
-                        <img src="${a.imagen_url || 'https://via.placeholder.com/300'}" alt="${a.nombre}">
+            try {
+                const res = await fetch('/api/armas');
+                const data = await res.json();
+                const c = document.getElementById('view-armas');
+                if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay armas registradas.</p>';
+                c.innerHTML = data.map(a => `
+                    <div class="detail-card border-blue">
+                        <div class="card-img-wrapper">
+                            <img src="${a.imagen_url || 'https://via.placeholder.com/300'}" alt="${a.nombre}">
+                        </div>
+                        <div class="card-body">
+                            <h3>${a.nombre}</h3>
+                            <div class="info-badge">💥 Daño / Atributos: ${a.danio || 'N/A'}</div>
+                            <p class="description"><strong>Obtención:</strong> ${a.obtencion || ''}</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h3>${a.nombre}</h3>
-                        <div class="info-badge">💥ESTADISTICAS : ${a.danio}</div>
-                        <p class="description"><strong>Obtención:</strong> ${a.obtencion}</p>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
+            } catch(e) { console.error("Error cargando armas:", e); }
         }
 
         async function loadMinerales() {
-            const res = await fetch('/api/minerales');
-            const data = await res.json();
-            const c = document.getElementById('view-minerales');
-            if(!data.length) return c.innerHTML = '<p class="empty">No hay minerales registrados.</p>';
-            c.innerHTML = data.map(m => `
-                <div class="detail-card border-cyan">
-                    <div class="card-img-wrapper">
-                        <img src="${m.imagen_url || 'https://via.placeholder.com/300'}" alt="${m.nombre}">
+            try {
+                const res = await fetch('/api/minerales');
+                const data = await res.json();
+                const c = document.getElementById('view-minerales');
+                if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay minerales registrados.</p>';
+                c.innerHTML = data.map(m => `
+                    <div class="detail-card border-cyan">
+                        <div class="card-img-wrapper">
+                            <img src="${m.imagen_url || 'https://via.placeholder.com/300'}" alt="${m.nombre}">
+                        </div>
+                        <div class="card-body">
+                            <h3>${m.nombre}</h3>
+                            <div class="info-badge">📍 Capa / Ubicación: ${m.ubicacion || 'N/A'}</div>
+                            <p class="description"><strong>Uso:</strong> ${m.uso || ''}</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h3>${m.nombre}</h3>
-                        <div class="info-badge">📍 Ubicación: ${m.ubicacion}</div>
-                        <p class="description"><strong>Uso:</strong> ${m.uso}</p>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
+            } catch(e) { console.error("Error cargando minerales:", e); }
         }
 
         async function loadRecetas() {
-            const res = await fetch('/api/recetas');
-            const data = await res.json();
-            const c = document.getElementById('view-recetas');
-            if(!data.length) return c.innerHTML = '<p class="empty">No hay recetas registradas.</p>';
-            c.innerHTML = data.map(r => `
-                <div class="detail-card border-green">
-                    <div class="card-img-wrapper">
-                        <img src="${r.imagen_url || 'https://via.placeholder.com/300'}" alt="${r.nombre}">
+            try {
+                const res = await fetch('/api/recetas');
+                const data = await res.json();
+                const c = document.getElementById('view-recetas');
+                if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay recetas registradas.</p>';
+                c.innerHTML = data.map(r => `
+                    <div class="detail-card border-green">
+                        <div class="card-img-wrapper">
+                            <img src="${r.imagen_url || 'https://via.placeholder.com/300'}" alt="${r.nombre}">
+                        </div>
+                        <div class="card-body">
+                            <h3>${r.nombre}</h3>
+                            <div class="info-badge">🛠️ Estación: ${r.estacion || 'N/A'}</div>
+                            <p class="description"><strong>Ingredientes:</strong> ${r.ingredientes || ''}</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h3>${r.nombre}</h3>
-                        <div class="info-badge">🛠️ Estación: ${r.estacion}</div>
-                        <p class="description"><strong>Ingredientes:</strong> ${r.ingredientes}</p>
-                    </div>
-                </div>
-            `).join('');
+                `).join('');
+            } catch(e) { console.error("Error cargando recetas:", e); }
         }
 
-async function loadUbicaciones() {
-    const res = await fetch('/api/ubicaciones');
-    const data = await res.json();
-    const c = document.getElementById('view-ubicaciones');
-    if(!data.length) return c.innerHTML = '<p class="empty">No hay ubicaciones registradas.</p>';
-    c.innerHTML = data.map(u => `
-        <div class="detail-card border-gold">
-            <div class="card-img-wrapper">
-                <img src="${u.imagen_url || 'https://via.placeholder.com/300'}" alt="${u.nombre}">
-            </div>
-            <div class="card-body">
-                <h3>${u.nombre}</h3>
-                <div class="info-badge">📍 Ubicación: ${u.coordenadas || 'No indicada'}</div>
-                <p class="description">${u.descripcion}</p>
-            </div>
-        </div>
-    `).join('');
-}
+        async function loadUbicaciones() {
+            try {
+                const res = await fetch('/api/ubicaciones');
+                const data = await res.json();
+                const c = document.getElementById('view-ubicaciones');
+                if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay ubicaciones registradas.</p>';
+                c.innerHTML = data.map(u => `
+                    <div class="detail-card border-gold">
+                        <div class="card-img-wrapper">
+                            <img src="${u.imagen_url || 'https://via.placeholder.com/300'}" alt="${u.nombre}">
+                        </div>
+                        <div class="card-body">
+                            <h3>${u.nombre}</h3>
+                            <div class="info-badge">📍 Ubicación: ${u.coordenadas || 'No indicada'}</div>
+                            <p class="description" style="white-space: pre-line;">${u.descripcion || ''}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) { console.error("Error cargando ubicaciones:", e); }
+        }
 
         async function loadNovedades() {
-            const res = await fetch('/api/novedades');
-            const data = await res.json();
-            const c = document.getElementById('view-novedades');
-            if(!data.length) return c.innerHTML = '<p class="empty">No hay actualizaciones publicadas.</p>';
-            c.innerHTML = data.map(n => `
-                <div class="update-full-card">
-                    <span class="version-tag">${n.version}</span>
-                    <p>${n.descripcion}</p>
-                </div>
-            `).join('');
+            try {
+                const res = await fetch('/api/novedades');
+                const data = await res.json();
+                const c = document.getElementById('view-novedades');
+                if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay actualizaciones publicadas.</p>';
+                c.innerHTML = data.map(n => `
+                    <div class="update-full-card">
+                        <span class="version-tag">${n.version}</span>
+                        <p style="white-space: pre-line;">${n.descripcion || ''}</p>
+                    </div>
+                `).join('');
+            } catch(e) { console.error("Error cargando novedades:", e); }
         }
-
-        @app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        # Captura la contraseña de cualquier campo que use el HTML
-        password = (
-            request.form.get('password') or 
-            request.form.get('clave') or 
-            request.form.get('contrasena') or 
-            request.form.get('pass')
-        )
-        
-        # 1. Busca en la variable de entorno de Render
-        # 2. Si no existe, acepta 'admin123' O la contraseña que tú elijas aquí
-        ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
-        
-        # Cambia 'admin123' por la contraseña exacta que quieras usar si no usas variables en Render
-        PASSWORD_DEFECTO = 'admin123'
-
-        if password and (password == ADMIN_PASSWORD or password == PASSWORD_DEFECTO):
-            session['logged_in'] = True
-            return redirect(url_for('admin'))
-            
-        return render_template('login.html', error='Contraseña incorrecta')
-        
-    return render_template('login.html')
-        
     </script>
 </body>
 </html>
