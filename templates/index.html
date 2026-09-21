@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCARLETCRAFT Wiki</title>
+    <title>MC Server Wiki</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header class="top-nav">
         <div class="nav-left">
-            <div class="logo"><a href="javascript:void(0)" onclick="switchSection('inicio')">⚡ SCARLETCRAFT WIKI</a></div>
+            <div class="logo"><a href="javascript:void(0)" onclick="switchSection('inicio')">⚡ MC SERVER WIKI</a></div>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="javascript:void(0)" onclick="switchSection('inicio')" class="nav-link">Inicio</a></li>
                 <li class="nav-item">
@@ -19,6 +19,7 @@
                         <li><a href="javascript:void(0)" onclick="switchSection('armas')">🗡️ Armas Únicas</a></li>
                         <li><a href="javascript:void(0)" onclick="switchSection('minerales')">💎 Minerales</a></li>
                         <li><a href="javascript:void(0)" onclick="switchSection('recetas')">📜 Crafteos Personalizados</a></li>
+                        <li><a href="javascript:void(0)" onclick="switchSection('ubicaciones')">📍 Ubicaciones Importantes</a></li>
                     </ul>
                 </li>
                 <li class="nav-item"><a href="javascript:void(0)" onclick="switchSection('novedades')" class="nav-link">📢 Actualizaciones</a></li>
@@ -31,8 +32,8 @@
         <!-- SECCIÓN: INICIO (RESUMEN GENERAL) -->
         <div id="sec-inicio" class="wiki-section active">
             <div class="hero-banner">
-                <h1>BIENVENIDO A LA WIKI OFICIAL DE SCARLETCRAFT</h1>
-                <p>Explora todas las guías, jefes, armas legendarias, minerales y crafteos exclusivos de nuestro servidor.</p>
+                <h1>BIENVENIDO A LA WIKI OFICIAL</h1>
+                <p>Explora todas las guías, jefes, armas legendarias, minerales, crafteos y ubicaciones clave de nuestro servidor.</p>
             </div>
             
             <div class="categories-grid">
@@ -51,6 +52,10 @@
                 <div class="category-card" onclick="switchSection('recetas')">
                     <h2>📜 Crafteos Personalizados</h2>
                     <p>Aprende a fabricar objetos especiales en las mesas de trabajo.</p>
+                </div>
+                <div class="category-card" onclick="switchSection('ubicaciones')">
+                    <h2>📍 Ubicaciones Importantes</h2>
+                    <p>Coordenadas de zonas clave, portales y arenas de jefes.</p>
                 </div>
                 <div class="category-card" onclick="switchSection('novedades')">
                     <h2>📢 Actualizaciones</h2>
@@ -95,6 +100,15 @@
             <div id="view-recetas" class="cards-grid"></div>
         </div>
 
+        <!-- SECCIÓN: UBICACIONES -->
+        <div id="sec-ubicaciones" class="wiki-section">
+            <div class="section-header">
+                <h2>📍 Ubicaciones Importantes</h2>
+                <p>Puntos de interés, coordenadas de jefes y estructuras especiales.</p>
+            </div>
+            <div id="view-ubicaciones" class="cards-grid"></div>
+        </div>
+
         <!-- SECCIÓN: NOVEDADES / ACTUALIZACIONES -->
         <div id="sec-novedades" class="wiki-section">
             <div class="section-header">
@@ -118,6 +132,7 @@
             loadArmas();
             loadMinerales();
             loadRecetas();
+            loadUbicaciones();
             loadNovedades();
         });
 
@@ -191,6 +206,25 @@
                         <h3>${r.nombre}</h3>
                         <div class="info-badge">🛠️ Estación: ${r.estacion}</div>
                         <p class="description"><strong>Ingredientes:</strong> ${r.ingredientes}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadUbicaciones() {
+            const res = await fetch('/api/ubicaciones');
+            const data = await res.json();
+            const c = document.getElementById('view-ubicaciones');
+            if(!data.length) return c.innerHTML = '<p class="empty">No hay ubicaciones registradas.</p>';
+            c.innerHTML = data.map(u => `
+                <div class="detail-card border-gold">
+                    <div class="card-img-wrapper">
+                        <img src="${u.imagen_url || 'https://via.placeholder.com/300'}" alt="${u.nombre}">
+                    </div>
+                    <div class="card-body">
+                        <h3>${u.nombre}</h3>
+                        <div class="info-badge">📍 Coordenadas: ${u.coordenadas || 'No indicadas'}</div>
+                        <p class="description">${u.descripcion}</p>
                     </div>
                 </div>
             `).join('');
