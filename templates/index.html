@@ -296,7 +296,6 @@
             const target = document.getElementById('sec-' + secId);
             if (target) target.classList.add('active');
 
-            // Ocultar Búsqueda y Categorías en INICIO, mostrarlas en subsecciones
             const searchCard = document.getElementById('card-search');
             const categoryCard = document.getElementById('card-categories');
 
@@ -322,7 +321,6 @@
             loadSectionData('ubicaciones', renderUbicaciones);
             loadSectionData('novedades', renderNovedades);
 
-            // Estado inicial: Ocultar Búsqueda y Categorías en Inicio
             switchSection('inicio');
         });
 
@@ -337,7 +335,6 @@
             } catch(e) { console.error(`Error cargando ${cat}:`, e); }
         }
 
-        // Renderiza los botones pill de categorías dinámicamente
         function renderCategoryPills() {
             const pillsContainer = document.getElementById('category-pills');
             if (!pillsContainer) return;
@@ -377,7 +374,10 @@
 
             let allItems = [];
 
+            // Recorremos las categorías de contenido (omitiendo 'novedades')
             Object.keys(wikiStore).forEach(catKey => {
+                if (catKey === 'novedades') return; // Excluimos el historial de parches
+
                 (wikiStore[catKey] || []).forEach(item => {
                     allItems.push({
                         ...item,
@@ -386,9 +386,10 @@
                 });
             });
 
-            // Tomamos los últimos elementos añadidos
-            allItems.reverse();
-            const recent = allItems.slice(0, 3); // Muestra los últimos 3
+            // Ordenamos por ID más reciente (mayor ID primero)
+            allItems.sort((a, b) => (b.id || 0) - (a.id || 0));
+
+            const recent = allItems.slice(0, 3); // Muestra los últimos 3 añadidos
 
             if (!recent.length) {
                 container.innerHTML = '<p style="color:#64748b; font-size:0.85rem;">No hay agregados recientes.</p>';
@@ -396,8 +397,8 @@
             }
 
             container.innerHTML = recent.map(item => {
-                const title = item.nombre || item.version || 'Elemento';
-                const category = item.categoria || 'Sin categoría';
+                const title = item.nombre || 'Sin título';
+                const category = item.categoria || item._secTarget.toUpperCase();
                 const image = item.imagen_url || 'https://via.placeholder.com/50';
 
                 return `
