@@ -172,13 +172,13 @@
     <div class="container">
         <!-- SECCIÓN 1: INICIO -->
         <div id="sec-inicio" class="wiki-section active">
-            <!-- 1. CARTEL DE BIENVENIDA -->
+            <!-- CARTEL DE BIENVENIDA -->
             <div class="hero-banner">
                 <h1>BIENVENIDO A LA WIKI OFICIAL DE SCARLETCRAFT</h1>
                 <p>Explora todas las guías, jefes, armas legendarias, minerales, crafteos y ubicaciones clave de nuestro servidor.</p>
             </div>
 
-            <!-- 2. WIDGET LO MÁS RECIENTE -->
+            <!-- WIDGET LO MÁS RECIENTE -->
             <div id="card-recent-inicio" class="filter-card" style="margin: 20px 0;">
                 <div class="filter-title">🔥 LO MÁS RECIENTE</div>
                 <div id="recent-items-container" class="recent-list">
@@ -186,7 +186,7 @@
                 </div>
             </div>
             
-            <!-- 3. GRID DE CATEGORÍAS -->
+            <!-- GRID DE CATEGORÍAS -->
             <div class="categories-grid">
                 <div class="category-card" onclick="switchSection('jefes')">
                     <h2>⚔️ Jefes Descubiertos</h2>
@@ -290,6 +290,9 @@
         let activeCategory = 'Todas';
         let currentSection = 'inicio';
 
+        // Orden estricto de lectura para garantizar consistencia en cada carga
+        const FIXED_CATEGORY_ORDER = ['jefes', 'armas', 'minerales', 'recetas', 'ubicaciones'];
+
         function switchSection(secId) {
             currentSection = secId;
             document.querySelectorAll('.wiki-section').forEach(el => el.classList.remove('active'));
@@ -310,14 +313,19 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            loadSectionData('jefes', renderJefes);
-            loadSectionData('armas', renderArmas);
-            loadSectionData('minerales', renderMinerales);
-            loadSectionData('recetas', renderRecetas);
-            loadSectionData('ubicaciones', renderUbicaciones);
-            loadSectionData('novedades', renderNovedades);
+        // Carga simultánea y ordenada
+        document.addEventListener("DOMContentLoaded", async () => {
+            await Promise.all([
+                loadSectionData('jefes', renderJefes),
+                loadSectionData('armas', renderArmas),
+                loadSectionData('minerales', renderMinerales),
+                loadSectionData('recetas', renderRecetas),
+                loadSectionData('ubicaciones', renderUbicaciones),
+                loadSectionData('novedades', renderNovedades)
+            ]);
 
+            renderCategoryPills();
+            renderRecentWidget();
             switchSection('inicio');
         });
 
@@ -327,9 +335,10 @@
                 const data = await res.json();
                 wikiStore[cat] = data || [];
                 renderFn(wikiStore[cat]);
-                renderCategoryPills();
-                renderRecentWidget();
-            } catch(e) { console.error(`Error cargando ${cat}:`, e); }
+            } catch(e) {
+                console.error(`Error cargando ${cat}:`, e);
+                wikiStore[cat] = [];
+            }
         }
 
         function renderCategoryPills() {
@@ -364,17 +373,15 @@
             `).join('');
         }
 
-        // Renderiza el widget "LO MÁS RECIENTE"
+        // Renderizado estricto y determinista de "LO MÁS RECIENTE"
         function renderRecentWidget() {
             const container = document.getElementById('recent-items-container');
             if (!container) return;
 
             let candidateItems = [];
 
-            // 1. Recopilar todos los ítems agregando información de timestamp si existe
-            Object.keys(wikiStore).forEach(catKey => {
-                if (catKey === 'novedades') return;
-
+            // 1. Recopilar items de las categorías en orden fijo
+            FIXED_CATEGORY_ORDER.forEach(catKey => {
                 const items = wikiStore[catKey] || [];
                 items.forEach(item => {
                     let timeVal = 0;
@@ -398,19 +405,16 @@
             let finalItems = [];
 
             if (hasValidDates) {
-                // Si la BD proporciona fechas, ordenar puramente por fecha
+                // Si la base de datos devuelve fecha, ordenar por fecha descendente
                 candidateItems.sort((a, b) => b._time - a._time);
                 finalItems = candidateItems;
             } else {
-                // Si la BD NO proporciona fechas, tomar el ÚLTIMO ítem de CADA categoría
-                // para asegurar que las adiciones recientes de cualquier sección (minerales, armas, etc.) aparezcan.
+                // Si no hay fecha, tomar exactamente el último elemento añadido de cada tabla
                 let latestPerCategory = [];
-                Object.keys(wikiStore).forEach(catKey => {
-                    if (catKey === 'novedades') return;
-
+                FIXED_CATEGORY_ORDER.forEach(catKey => {
                     const items = wikiStore[catKey] || [];
                     if (items.length > 0) {
-                        const lastItem = items[items.length - 1]; // El más reciente de esa tabla
+                        const lastItem = items[items.length - 1];
                         latestPerCategory.push({
                             ...lastItem,
                             _secTarget: catKey
@@ -418,7 +422,7 @@
                     }
                 });
 
-                // Mostramos primero las adiciones más recientes rotando/invirtiendo
+                // Orden determinista (últimas agregadas arriba)
                 finalItems = latestPerCategory.reverse();
             }
 
