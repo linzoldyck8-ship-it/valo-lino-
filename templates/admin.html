@@ -191,6 +191,15 @@
     <script>
         const store = {};
 
+        const formatters = {
+            jefes: item => `<b>${item.nombre}</b>`,
+            novedades: item => `<b>${item.version}</b>`,
+            armas: item => `<b>${item.nombre}</b>`,
+            minerales: item => `<b>${item.nombre}</b>`,
+            recetas: item => `<b>${item.nombre}</b>`,
+            ubicaciones: item => `<b>${item.nombre}</b>`
+        };
+
         function showTab(evt, name) {
             document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -209,7 +218,10 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
             });
-            window.location.reload();
+
+            e.target.reset();
+            resetForm(cat);
+            await loadList(cat, formatters[cat]);
         }
 
         function prepareEdit(cat, id) {
@@ -263,17 +275,12 @@
         async function removeItem(cat, id) {
             if(confirm('¿Deseas eliminar este elemento?')) {
                 await fetch(`/api/${cat}/${id}`, { method: 'DELETE' });
-                window.location.reload();
+                await loadList(cat, formatters[cat]);
             }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            loadList('jefes', item => `<b>${item.nombre}</b>`);
-            loadList('novedades', item => `<b>${item.version}</b>`);
-            loadList('armas', item => `<b>${item.nombre}</b>`);
-            loadList('minerales', item => `<b>${item.nombre}</b>`);
-            loadList('recetas', item => `<b>${item.nombre}</b>`);
-            loadList('ubicaciones', item => `<b>${item.nombre}</b>`);
+            Object.keys(formatters).forEach(cat => loadList(cat, formatters[cat]));
         });
 
         async function loadList(cat, formatText) {
