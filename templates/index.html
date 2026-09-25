@@ -6,7 +6,7 @@
     <title>⛏️SCARLETCRAFT WIKI⛏️</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        /* Panel de widgets superiores (Buscar, Categorías, Lo más reciente) */
+        /* Panel de widgets superiores (Buscar, Categorías) */
         .filter-wrapper {
             display: flex;
             flex-wrap: wrap;
@@ -170,38 +170,23 @@
     </header>
 
     <div class="container">
-        <!-- TRÍPTICO DE FILTROS ESTILO WIDGET -->
-        <div class="filter-wrapper">
-            <!-- 1. BÚSQUEDA -->
-            <div id="card-search" class="filter-card" style="display: none;">
-                <div class="filter-title">🔍 BUSCAR NOTICIA</div>
-                <input type="text" id="global-search" class="search-input-box" placeholder="Buscar palabras clave..." oninput="filterWiki()">
-            </div>
-            
-            <!-- 2. CATEGORÍAS -->
-            <div id="card-categories" class="filter-card" style="display: none;">
-                <div class="filter-title">🏷️ CATEGORÍAS</div>
-                <div id="category-pills" class="pills-container">
-                    <button class="category-pill active" onclick="selectCategory('Todas')">Todas</button>
-                </div>
+        <!-- SECCIÓN 1: INICIO -->
+        <div id="sec-inicio" class="wiki-section active">
+            <!-- 1. CARTEL DE BIENVENIDA PRIMERO -->
+            <div class="hero-banner">
+                <h1>BIENVENIDO A LA WIKI OFICIAL DE SCARLETCRAFT</h1>
+                <p>Explora todas las guías, jefes, armas legendarias, minerales, crafteos y ubicaciones clave de nuestro servidor.</p>
             </div>
 
-            <!-- 3. LO MÁS RECIENTE -->
-            <div id="card-recent" class="filter-card">
+            <!-- 2. WIDGET DE LO MÁS RECIENTE DEBAJO DEL CARTEL -->
+            <div id="card-recent-inicio" class="filter-card" style="margin: 20px 0;">
                 <div class="filter-title">🔥 LO MÁS RECIENTE</div>
                 <div id="recent-items-container" class="recent-list">
                     <p style="color:#64748b; font-size:0.85rem;">Cargando novedades...</p>
                 </div>
             </div>
-        </div>
-
-        <!-- SECCIÓN 1: INICIO -->
-        <div id="sec-inicio" class="wiki-section active">
-            <div class="hero-banner">
-                <h1>BIENVENIDO A LA WIKI OFICIAL DE SCARLETCRAFT</h1>
-                <p>Explora todas las guías, jefes, armas legendarias, minerales, crafteos y ubicaciones clave de nuestro servidor.</p>
-            </div>
             
+            <!-- 3. CUADRÍCULA DE CATEGORÍAS -->
             <div class="categories-grid">
                 <div class="category-card" onclick="switchSection('jefes')">
                     <h2>⚔️ Jefes Descubiertos</h2>
@@ -226,6 +211,21 @@
                 <div class="category-card" onclick="switchSection('novedades')">
                     <h2>📢 Actualizaciones</h2>
                     <p>Revisa el historial de parches y versiones recientes del servidor.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILTROS (BÚSQUEDA Y CATEGORÍAS) PARA LAS DEMÁS SECCIONES -->
+        <div id="section-filters" class="filter-wrapper" style="display: none;">
+            <div id="card-search" class="filter-card">
+                <div class="filter-title">🔍 BUSCAR EN WIKI</div>
+                <input type="text" id="global-search" class="search-input-box" placeholder="Buscar palabras clave..." oninput="filterWiki()">
+            </div>
+            
+            <div id="card-categories" class="filter-card">
+                <div class="filter-title">🏷️ CATEGORÍAS</div>
+                <div id="category-pills" class="pills-container">
+                    <button class="category-pill active" onclick="selectCategory('Todas')">Todas</button>
                 </div>
             </div>
         </div>
@@ -296,15 +296,12 @@
             const target = document.getElementById('sec-' + secId);
             if (target) target.classList.add('active');
 
-            const searchCard = document.getElementById('card-search');
-            const categoryCard = document.getElementById('card-categories');
+            const sectionFilters = document.getElementById('section-filters');
 
             if (secId === 'inicio') {
-                searchCard.style.display = 'none';
-                categoryCard.style.display = 'none';
+                if (sectionFilters) sectionFilters.style.display = 'none';
             } else {
-                searchCard.style.display = 'flex';
-                categoryCard.style.display = 'flex';
+                if (sectionFilters) sectionFilters.style.display = 'flex';
             }
 
             activeCategory = 'Todas';
@@ -372,36 +369,46 @@
             const container = document.getElementById('recent-items-container');
             if (!container) return;
 
-            let allItems = [];
+            let candidateItems = [];
 
             // Recorremos las categorías excluyendo novedades
             Object.keys(wikiStore).forEach(catKey => {
                 if (catKey === 'novedades') return;
 
                 const items = wikiStore[catKey] || [];
-                items.forEach(item => {
-                    allItems.push({
+                if (!items.length) return;
+
+                // Invertimos el array para que el ÚLTIMO agregado esté en el índice 0
+                const reversed = [...items].reverse();
+
+                reversed.forEach((item, index) => {
+                    candidateItems.push({
                         ...item,
-                        _secTarget: catKey
+                        _secTarget: catKey,
+                        _freshnessIndex: index, // 0 = El más reciente de esta categoría
+                        _rawId: parseInt(item.id || 0, 10)
                     });
                 });
             });
 
-            // Ordenamiento por fecha real o ID relativo
-            allItems.sort((a, b) => {
+            // Ordenamos por fecha real o por el último agregado en cada categoría
+            candidateItems.sort((a, b) => {
                 const dateB = new Date(b.created_at || b.fecha_creacion || b.timestamp || b.fecha || 0).getTime();
                 const dateA = new Date(a.created_at || a.fecha_creacion || a.timestamp || a.fecha || 0).getTime();
 
-                // Si existen fechas reales válidas, comparar por fecha
-                if (dateB !== dateA) {
+                if (!isNaN(dateB) && !isNaN(dateA) && dateB > 0 && dateA > 0 && dateB !== dateA) {
                     return dateB - dateA;
                 }
 
-                // Si no hay fechas, prioriza por la posición de carga o ID numérico
-                return (b.id || 0) - (a.id || 0);
+                // Si no hay fechas, prioriza los últimos añadidos de cada categoría (_freshnessIndex menor)
+                if (a._freshnessIndex !== b._freshnessIndex) {
+                    return a._freshnessIndex - b._freshnessIndex;
+                }
+
+                return b._rawId - a._rawId;
             });
 
-            const recent = allItems.slice(0, 3);
+            const recent = candidateItems.slice(0, 3);
 
             if (!recent.length) {
                 container.innerHTML = '<p style="color:#64748b; font-size:0.85rem;">No hay agregados recientes.</p>';
@@ -432,7 +439,8 @@
         }
 
         function filterWiki() {
-            const query = document.getElementById('global-search').value.toLowerCase().trim();
+            const searchInput = document.getElementById('global-search');
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
             
             const filterItem = item => {
                 const name = (item.nombre || item.version || '').toLowerCase();
