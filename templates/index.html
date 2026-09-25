@@ -5,6 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⛏️SCARLETCRAFT WIKI⛏️</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Panel de widgets superiores (Buscar, Categorías, Lo más reciente) */
+        .filter-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .filter-card {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-title {
+            color: #38bdf8;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .search-input-box {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .search-input-box:focus {
+            border-color: #38bdf8;
+        }
+
+        .pills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .category-pill {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .category-pill:hover {
+            color: #fff;
+            background: #334155;
+        }
+
+        .category-pill.active {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        /* Lista de Lo Más Reciente */
+        .recent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .recent-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            transition: background 0.2s;
+            cursor: pointer;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+        }
+
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+
+        .recent-item:hover {
+            background: #1e293b;
+        }
+
+        .recent-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #334155;
+            background: #1e293b;
+            flex-shrink: 0;
+        }
+
+        .recent-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .recent-title {
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .recent-sub {
+            color: #64748b;
+            font-size: 0.78rem;
+            margin-top: 2px;
+        }
+    </style>
 </head>
 <body>
     <header class="top-nav">
@@ -29,9 +168,29 @@
     </header>
 
     <div class="container">
-        <!-- BARRA DE BÚSQUEDA GLOBAL -->
-        <div style="margin: 20px 0; text-align: center;">
-            <input type="text" id="global-search" placeholder="🔍 Buscar por nombre o categoría (Ej: Dragón, Opcional, Mayor, Legendaria)..." oninput="filterWiki()" style="width: 100%; max-width: 650px; padding: 12px 20px; border-radius: 25px; border: 2px solid #3b82f6; background: #1e293b; color: #fff; font-size: 1rem; outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+        <!-- TRÍPTICO DE FILTROS ESTILO WIDGET -->
+        <div class="filter-wrapper">
+            <!-- 1. BÚSQUEDA -->
+            <div class="filter-card">
+                <div class="filter-title">🔍 BUSCAR NOTICIA</div>
+                <input type="text" id="global-search" class="search-input-box" placeholder="Buscar palabras clave..." oninput="filterWiki()">
+            </div>
+            
+            <!-- 2. CATEGORÍAS -->
+            <div class="filter-card">
+                <div class="filter-title">🏷️ CATEGORÍAS</div>
+                <div id="category-pills" class="pills-container">
+                    <button class="category-pill active" onclick="selectCategory('Todas')">Todas</button>
+                </div>
+            </div>
+
+            <!-- 3. LO MÁS RECIENTE -->
+            <div class="filter-card">
+                <div class="filter-title">🔥 LO MÁS RECIENTE</div>
+                <div id="recent-items-container" class="recent-list">
+                    <p style="color:#64748b; font-size:0.85rem;">Cargando novedades...</p>
+                </div>
+            </div>
         </div>
 
         <!-- SECCIÓN 1: INICIO -->
@@ -126,11 +285,18 @@
 
     <script>
         const wikiStore = {};
+        let activeCategory = 'Todas';
+        let currentSection = 'inicio';
 
         function switchSection(secId) {
+            currentSection = secId;
             document.querySelectorAll('.wiki-section').forEach(el => el.classList.remove('active'));
             const target = document.getElementById('sec-' + secId);
             if (target) target.classList.add('active');
+
+            activeCategory = 'Todas';
+            renderCategoryPills();
+            filterWiki();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -149,7 +315,90 @@
                 const data = await res.json();
                 wikiStore[cat] = data || [];
                 renderFn(wikiStore[cat]);
+                renderCategoryPills();
+                renderRecentWidget();
             } catch(e) { console.error(`Error cargando ${cat}:`, e); }
+        }
+
+        // Renderiza los botones pill de categorías dinámicamente
+        function renderCategoryPills() {
+            const pillsContainer = document.getElementById('category-pills');
+            if (!pillsContainer) return;
+
+            let categories = new Set();
+            
+            if (currentSection === 'inicio') {
+                Object.keys(wikiStore).forEach(key => {
+                    (wikiStore[key] || []).forEach(item => {
+                        if (item.categoria && item.categoria.trim() !== '') {
+                            categories.add(item.categoria.trim());
+                        }
+                    });
+                });
+            } else {
+                (wikiStore[currentSection] || []).forEach(item => {
+                    if (item.categoria && item.categoria.trim() !== '') {
+                        categories.add(item.categoria.trim());
+                    }
+                });
+            }
+
+            const catArray = ['Todas', ...Array.from(categories)];
+
+            pillsContainer.innerHTML = catArray.map(cat => `
+                <button class="category-pill ${cat === activeCategory ? 'active' : ''}" 
+                        onclick="selectCategory('${cat}')">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        // Renderiza el widget de "LO MÁS RECIENTE"
+        function renderRecentWidget() {
+            const container = document.getElementById('recent-items-container');
+            if (!container) return;
+
+            let allItems = [];
+
+            Object.keys(wikiStore).forEach(catKey => {
+                (wikiStore[catKey] || []).forEach(item => {
+                    allItems.push({
+                        ...item,
+                        _secTarget: catKey
+                    });
+                });
+            });
+
+            // Tomamos los últimos elementos añadidos (invertimos el array)
+            allItems.reverse();
+            const recent = allItems.slice(0, 3); // Muestra los últimos 3
+
+            if (!recent.length) {
+                container.innerHTML = '<p style="color:#64748b; font-size:0.85rem;">No hay agregados recientes.</p>';
+                return;
+            }
+
+            container.innerHTML = recent.map(item => {
+                const title = item.nombre || item.version || 'Elemento';
+                const category = item.categoria || 'Sin categoría';
+                const image = item.imagen_url || 'https://via.placeholder.com/50';
+
+                return `
+                    <div class="recent-item" onclick="switchSection('${item._secTarget}')">
+                        <img src="${image}" alt="${title}" class="recent-thumb">
+                        <div class="recent-info">
+                            <span class="recent-title">${title}</span>
+                            <span class="recent-sub">${category}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectCategory(catName) {
+            activeCategory = catName;
+            renderCategoryPills();
+            filterWiki();
         }
 
         function filterWiki() {
@@ -157,8 +406,12 @@
             
             const filterItem = item => {
                 const name = (item.nombre || item.version || '').toLowerCase();
-                const category = (item.categoria || '').toLowerCase();
-                return name.includes(query) || category.includes(query);
+                const category = (item.categoria || '').trim();
+                
+                const matchesCategory = (activeCategory === 'Todas') || (category === activeCategory);
+                const matchesSearch = !query || name.includes(query) || category.toLowerCase().includes(query);
+
+                return matchesCategory && matchesSearch;
             };
 
             renderJefes((wikiStore.jefes || []).filter(filterItem));
@@ -171,14 +424,14 @@
 
         function renderJefes(data) {
             const c = document.getElementById('view-jefes');
-            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay jefes que coincidan con la búsqueda.</p>';
+            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay jefes que coincidan con la búsqueda o categoría.</p>';
             c.innerHTML = data.map(j => `
                 <div class="detail-card border-red">
                     <div class="card-img-wrapper">
                         <img src="${j.imagen_url || 'https://via.placeholder.com/300'}" alt="${j.nombre}">
                     </div>
                     <div class="card-body">
-                        ${j.categoria ? `<span style="font-size:0.75rem; background:#3b82f6; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${j.categoria}</span>` : ''}
+                        ${j.categoria ? `<span style="font-size:0.75rem; background:#0284c7; color:#fff; padding:3px 10px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${j.categoria}</span>` : ''}
                         <h3>${j.nombre}</h3>
                         <p class="description" style="white-space: pre-line;">${j.descripcion || ''}</p>
                     </div>
@@ -188,14 +441,14 @@
 
         function renderArmas(data) {
             const c = document.getElementById('view-armas');
-            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay armas que coincidan con la búsqueda.</p>';
+            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay armas que coincidan con la búsqueda o categoría.</p>';
             c.innerHTML = data.map(a => `
                 <div class="detail-card border-blue">
                     <div class="card-img-wrapper">
                         <img src="${a.imagen_url || 'https://via.placeholder.com/300'}" alt="${a.nombre}">
                     </div>
                     <div class="card-body">
-                        ${a.categoria ? `<span style="font-size:0.75rem; background:#3b82f6; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${a.categoria}</span>` : ''}
+                        ${a.categoria ? `<span style="font-size:0.75rem; background:#0284c7; color:#fff; padding:3px 10px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${a.categoria}</span>` : ''}
                         <h3>${a.nombre}</h3>
                         <div class="info-badge">💥 Daño / Atributos: ${a.danio || 'N/A'}</div>
                         <p class="description"><strong>Obtención:</strong> ${a.obtencion || ''}</p>
@@ -206,14 +459,14 @@
 
         function renderMinerales(data) {
             const c = document.getElementById('view-minerales');
-            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay minerales que coincidan con la búsqueda.</p>';
+            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay minerales que coincidan con la búsqueda o categoría.</p>';
             c.innerHTML = data.map(m => `
                 <div class="detail-card border-cyan">
                     <div class="card-img-wrapper">
                         <img src="${m.imagen_url || 'https://via.placeholder.com/300'}" alt="${m.nombre}">
                     </div>
                     <div class="card-body">
-                        ${m.categoria ? `<span style="font-size:0.75rem; background:#3b82f6; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${m.categoria}</span>` : ''}
+                        ${m.categoria ? `<span style="font-size:0.75rem; background:#0284c7; color:#fff; padding:3px 10px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${m.categoria}</span>` : ''}
                         <h3>${m.nombre}</h3>
                         <div class="info-badge">📍 Capa / Ubicación: ${m.ubicacion || 'N/A'}</div>
                         <p class="description"><strong>Uso:</strong> ${m.uso || ''}</p>
@@ -224,14 +477,14 @@
 
         function renderRecetas(data) {
             const c = document.getElementById('view-recetas');
-            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay recetas que coincidan con la búsqueda.</p>';
+            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay recetas que coincidan con la búsqueda o categoría.</p>';
             c.innerHTML = data.map(r => `
                 <div class="detail-card border-green">
                     <div class="card-img-wrapper">
                         <img src="${r.imagen_url || 'https://via.placeholder.com/300'}" alt="${r.nombre}">
                     </div>
                     <div class="card-body">
-                        ${r.categoria ? `<span style="font-size:0.75rem; background:#3b82f6; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${r.categoria}</span>` : ''}
+                        ${r.categoria ? `<span style="font-size:0.75rem; background:#0284c7; color:#fff; padding:3px 10px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${r.categoria}</span>` : ''}
                         <h3>${r.nombre}</h3>
                         <div class="info-badge">🛠️ Estación: ${r.estacion || 'N/A'}</div>
                         <p class="description"><strong>Ingredientes:</strong> ${r.ingredientes || ''}</p>
@@ -242,14 +495,14 @@
 
         function renderUbicaciones(data) {
             const c = document.getElementById('view-ubicaciones');
-            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay ubicaciones que coincidan con la búsqueda.</p>';
+            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay ubicaciones que coincidan con la búsqueda o categoría.</p>';
             c.innerHTML = data.map(u => `
                 <div class="detail-card border-gold">
                     <div class="card-img-wrapper">
                         <img src="${u.imagen_url || 'https://via.placeholder.com/300'}" alt="${u.nombre}">
                     </div>
                     <div class="card-body">
-                        ${u.categoria ? `<span style="font-size:0.75rem; background:#3b82f6; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${u.categoria}</span>` : ''}
+                        ${u.categoria ? `<span style="font-size:0.75rem; background:#0284c7; color:#fff; padding:3px 10px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${u.categoria}</span>` : ''}
                         <h3>${u.nombre}</h3>
                         <div class="info-badge">📍 Ubicación: ${u.coordenadas || 'No indicada'}</div>
                         <p class="description" style="white-space: pre-line;">${u.descripcion || ''}</p>
@@ -260,10 +513,10 @@
 
         function renderNovedades(data) {
             const c = document.getElementById('view-novedades');
-            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay actualizaciones que coincidan con la búsqueda.</p>';
+            if(!data || !data.length) return c.innerHTML = '<p class="empty">No hay actualizaciones que coincidan con la búsqueda o categoría.</p>';
             c.innerHTML = data.map(n => `
                 <div class="update-full-card">
-                    ${n.categoria ? `<span style="font-size:0.75rem; background:#3b82f6; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${n.categoria}</span><br>` : ''}
+                    ${n.categoria ? `<span style="font-size:0.75rem; background:#0284c7; color:#fff; padding:3px 10px; border-radius:12px; font-weight:bold; display:inline-block; margin-bottom:8px;">${n.categoria}</span><br>` : ''}
                     <span class="version-tag">${n.version}</span>
                     <p style="white-space: pre-line;">${n.descripcion || ''}</p>
                 </div>
