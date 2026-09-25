@@ -30,7 +30,7 @@ def index():
     jefes = []
     if supabase:
         try:
-            res = supabase.table('jefes').select('*').order('creado_en', desc=True).execute()
+            res = supabase.table('jefes').select('*').order('orden', desc=False).execute()
             jefes = res.data if res.data else []
         except Exception as e:
             print("Error cargando jefes en inicio:", e)
@@ -45,7 +45,6 @@ def admin():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Captura la contraseña independientemente del nombre del input HTML
         password = (
             request.form.get('password') or 
             request.form.get('clave') or 
@@ -54,7 +53,6 @@ def login():
         )
         
         ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
-        # Si no configuraste variable en Render, la contraseña por defecto será 'admin123'
         PASSWORD_DEFECTO = 'admin123'
 
         if password and (password == ADMIN_PASSWORD or password == PASSWORD_DEFECTO):
@@ -80,7 +78,8 @@ def get_items(tabla):
     if not supabase:
         return jsonify([])
     try:
-        res = supabase.table(tabla).select('*').execute()
+        # Ordenar por la columna 'orden' de menor a mayor
+        res = supabase.table(tabla).select('*').order('orden', desc=False).execute()
         return jsonify(res.data if res.data else [])
     except Exception as e:
         print(f"Error al obtener {tabla}:", e)
