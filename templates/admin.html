@@ -30,10 +30,12 @@
             <div class="admin-grid">
                 <div class="panel">
                     <h2 id="title-jefes">Añadir Nuevo Jefe</h2>
-                    <form onsubmit="handleFormSubmit(event, 'jefes', {nombre: j_n.value, descripcion: j_d.value, imagen_url: j_i.value})">
+                    <form onsubmit="handleFormSubmit(event, 'jefes', {nombre: j_n.value, categoria: j_c.value, descripcion: j_d.value, imagen_url: j_i.value})">
                         <input type="hidden" id="edit-id-jefes">
                         <label>Nombre del Jefe</label>
                         <input type="text" id="j_n" placeholder="Ej: Dragón del Vacío" required>
+                        <label>Categoría</label>
+                        <input type="text" id="j_c" placeholder="Ej: Jefe Mayor / Opcional">
                         <label>Descripción y Drops</label>
                         <textarea id="j_d" placeholder="Escribe detalles..." required></textarea>
                         <label>URL de la Imagen</label>
@@ -56,10 +58,12 @@
             <div class="admin-grid">
                 <div class="panel">
                     <h2 id="title-novedades">Añadir Novedad / Versión</h2>
-                    <form onsubmit="handleFormSubmit(event, 'novedades', {version: n_v.value, descripcion: n_d.value})">
+                    <form onsubmit="handleFormSubmit(event, 'novedades', {version: n_v.value, categoria: n_c.value, descripcion: n_d.value})">
                         <input type="hidden" id="edit-id-novedades">
                         <label>Versión / Título</label>
                         <input type="text" id="n_v" placeholder="Ej: Versión 1.5 - El Abismo" required>
+                        <label>Categoría</label>
+                        <input type="text" id="n_c" placeholder="Ej: Parche Importante">
                         <label>Descripción del Parche</label>
                         <textarea id="n_d" placeholder="Novedades de la actualización..." required></textarea>
                         <div style="display:flex; gap:10px; margin-top:10px;">
@@ -80,10 +84,12 @@
             <div class="admin-grid">
                 <div class="panel">
                     <h2 id="title-armas">Añadir Arma o Armadura Única</h2>
-                    <form onsubmit="handleFormSubmit(event, 'armas', {nombre: a_n.value, danio: a_da.value, obtencion: a_o.value, imagen_url: a_i.value})">
+                    <form onsubmit="handleFormSubmit(event, 'armas', {nombre: a_n.value, categoria: a_c.value, danio: a_da.value, obtencion: a_o.value, imagen_url: a_i.value})">
                         <input type="hidden" id="edit-id-armas">
                         <label>Nombre del Arma o Armadura</label>
                         <input type="text" id="a_n" placeholder="Ej: Espada de Fuego" required>
+                        <label>Categoría</label>
+                        <input type="text" id="a_c" placeholder="Ej: Arma Legendaria">
                         <label>Daño / Estadísticas</label>
                         <input type="text" id="a_da" placeholder="Ej: +15 Ataque" required>
                         <label>Método de Obtención</label>
@@ -108,10 +114,12 @@
             <div class="admin-grid">
                 <div class="panel">
                     <h2 id="title-minerales">Añadir Mineral</h2>
-                    <form onsubmit="handleFormSubmit(event, 'minerales', {nombre: m_n.value, ubicacion: m_u.value, uso: m_us.value, imagen_url: m_i.value})">
+                    <form onsubmit="handleFormSubmit(event, 'minerales', {nombre: m_n.value, categoria: m_c.value, ubicacion: m_u.value, uso: m_us.value, imagen_url: m_i.value})">
                         <input type="hidden" id="edit-id-minerales">
                         <label>Nombre del Mineral</label>
                         <input type="text" id="m_n" placeholder="Ej: Rubí Oscuro" required>
+                        <label>Categoría</label>
+                        <input type="text" id="m_c" placeholder="Ej: Mineral Raro / Nether">
                         <label>Ubicación</label>
                         <input type="text" id="m_u" placeholder="Ej: Capa -50 a -64" required>
                         <label>Uso Principal</label>
@@ -136,10 +144,12 @@
             <div class="admin-grid">
                 <div class="panel">
                     <h2 id="title-recetas">Añadir Crafteo Personalizado</h2>
-                    <form onsubmit="handleFormSubmit(event, 'recetas', {nombre: r_n.value, ingredientes: r_ing.value, estacion: r_e.value, imagen_url: r_i.value})">
+                    <form onsubmit="handleFormSubmit(event, 'recetas', {nombre: r_n.value, categoria: r_c.value, ingredientes: r_ing.value, estacion: r_e.value, imagen_url: r_i.value})">
                         <input type="hidden" id="edit-id-recetas">
                         <label>Resultado del Crafteo</label>
                         <input type="text" id="r_n" placeholder="Ej: Poción Legendaria" required>
+                        <label>Categoría</label>
+                        <input type="text" id="r_c" placeholder="Ej: Alquimia / Avanzado">
                         <label>Ingredientes</label>
                         <textarea id="r_ing" placeholder="Ej: 2x Rubí, 1x Frasco de Agua" required></textarea>
                         <label>Estación / Mesa</label>
@@ -164,12 +174,14 @@
             <div class="admin-grid">
                 <div class="panel">
                     <h2 id="title-ubicaciones">Añadir Ubicación Importante</h2>
-                    <form onsubmit="handleFormSubmit(event, 'ubicaciones', {nombre: u_n.value, coordenadas: u_c.value, descripcion: u_d.value, imagen_url: u_i.value})">
+                    <form onsubmit="handleFormSubmit(event, 'ubicaciones', {nombre: u_n.value, categoria: u_c.value, coordenadas: u_co.value, descripcion: u_d.value, imagen_url: u_i.value})">
                         <input type="hidden" id="edit-id-ubicaciones">
                         <label>Nombre del Lugar</label>
                         <input type="text" id="u_n" placeholder="Ej: Arena del Dragón / Zona PvP" required>
+                        <label>Categoría</label>
+                        <input type="text" id="u_c" placeholder="Ej: Zona PvP / Obligatorio">
                         <label>Ubicación</label>
-                        <input type="text" id="u_c" placeholder="Ej: Spawn / Overworld X: 100, Z: -200" required>
+                        <input type="text" id="u_co" placeholder="Ej: Spawn / Overworld X: 100, Z: -200" required>
                         <label>Descripción</label>
                         <textarea id="u_d" placeholder="Detalles sobre lo que se encuentra en este lugar..." required></textarea>
                         <label>URL de la Imagen</label>
@@ -213,6 +225,10 @@
             const url = editId ? `/api/${cat}/${editId}` : `/api/${cat}`;
             const method = editId ? 'PUT' : 'POST';
 
+            if (!editId) {
+                data.orden = store[cat] ? store[cat].length : 0;
+            }
+
             await fetch(url, {
                 method: method,
                 headers: {'Content-Type': 'application/json'},
@@ -235,29 +251,35 @@
 
             if (cat === 'jefes') {
                 j_n.value = item.nombre || '';
+                j_c.value = item.categoria || '';
                 j_d.value = item.descripcion || '';
                 j_i.value = item.imagen_url || '';
             } else if (cat === 'novedades') {
                 n_v.value = item.version || '';
+                n_c.value = item.categoria || '';
                 n_d.value = item.descripcion || '';
             } else if (cat === 'armas') {
                 a_n.value = item.nombre || '';
+                a_c.value = item.categoria || '';
                 a_da.value = item.danio || '';
                 a_o.value = item.obtencion || '';
                 a_i.value = item.imagen_url || '';
             } else if (cat === 'minerales') {
                 m_n.value = item.nombre || '';
+                m_c.value = item.categoria || '';
                 m_u.value = item.ubicacion || '';
                 m_us.value = item.uso || '';
                 m_i.value = item.imagen_url || '';
             } else if (cat === 'recetas') {
                 r_n.value = item.nombre || '';
+                r_c.value = item.categoria || '';
                 r_ing.value = item.ingredientes || '';
                 r_e.value = item.estacion || '';
                 r_i.value = item.imagen_url || '';
             } else if (cat === 'ubicaciones') {
                 u_n.value = item.nombre || '';
-                u_c.value = item.coordenadas || '';
+                u_c.value = item.categoria || '';
+                u_co.value = item.coordenadas || '';
                 u_d.value = item.descripcion || '';
                 u_i.value = item.imagen_url || '';
             }
@@ -279,6 +301,35 @@
             }
         }
 
+        async function moveItem(cat, index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= store[cat].length) return;
+
+            store[cat].forEach((item, i) => { item.orden = i; });
+
+            const temp = store[cat][index].orden;
+            store[cat][index].orden = store[cat][targetIndex].orden;
+            store[cat][targetIndex].orden = temp;
+
+            const item1 = store[cat][index];
+            const item2 = store[cat][targetIndex];
+
+            await Promise.all([
+                fetch(`/api/${cat}/${item1.id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ orden: item1.orden })
+                }),
+                fetch(`/api/${cat}/${item2.id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ orden: item2.orden })
+                })
+            ]);
+
+            await loadList(cat, formatters[cat]);
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             Object.keys(formatters).forEach(cat => loadList(cat, formatters[cat]));
         });
@@ -290,10 +341,15 @@
             const el = document.getElementById(`admin-${cat}`);
             if(!items.length) return el.innerHTML = '<p class="empty">Sin datos guardados.</p>';
             
-            el.innerHTML = items.map(item => `
-                <div class="admin-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <div>${formatText(item)}</div>
-                    <div style="display:flex; gap:6px;">
+            el.innerHTML = items.map((item, idx) => `
+                <div class="admin-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 6px;">
+                    <div>
+                        ${formatText(item)}
+                        ${item.categoria ? `<span style="font-size:0.75rem; background:#3b82f6; color:#fff; padding:2px 8px; border-radius:12px; margin-left:8px;">${item.categoria}</span>` : ''}
+                    </div>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button class="nav-btn" style="padding:3px 8px; font-size:0.8rem;" onclick="moveItem('${cat}', ${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>⬆️</button>
+                        <button class="nav-btn" style="padding:3px 8px; font-size:0.8rem;" onclick="moveItem('${cat}', ${idx}, 1)" ${idx === items.length - 1 ? 'disabled' : ''}>⬇️</button>
                         <button class="btn-primary" style="padding:4px 10px; font-size:0.8rem;" onclick="prepareEdit('${cat}', '${item.id}')">✏️ Editar</button>
                         <button class="btn-danger" style="padding:4px 10px; font-size:0.8rem;" onclick="removeItem('${cat}', '${item.id}')">Eliminar</button>
                     </div>
