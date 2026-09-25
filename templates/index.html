@@ -374,11 +374,12 @@
 
             let allItems = [];
 
-            // Recorremos las categorías de contenido (omitiendo 'novedades')
+            // Recorremos las categorías excluyendo novedades
             Object.keys(wikiStore).forEach(catKey => {
-                if (catKey === 'novedades') return; // Excluimos el historial de parches
+                if (catKey === 'novedades') return;
 
-                (wikiStore[catKey] || []).forEach(item => {
+                const items = wikiStore[catKey] || [];
+                items.forEach(item => {
                     allItems.push({
                         ...item,
                         _secTarget: catKey
@@ -386,10 +387,21 @@
                 });
             });
 
-            // Ordenamos por ID más reciente (mayor ID primero)
-            allItems.sort((a, b) => (b.id || 0) - (a.id || 0));
+            // Ordenamiento por fecha real o ID relativo
+            allItems.sort((a, b) => {
+                const dateB = new Date(b.created_at || b.fecha_creacion || b.timestamp || b.fecha || 0).getTime();
+                const dateA = new Date(a.created_at || a.fecha_creacion || a.timestamp || a.fecha || 0).getTime();
 
-            const recent = allItems.slice(0, 3); // Muestra los últimos 3 añadidos
+                // Si existen fechas reales válidas, comparar por fecha
+                if (dateB !== dateA) {
+                    return dateB - dateA;
+                }
+
+                // Si no hay fechas, prioriza por la posición de carga o ID numérico
+                return (b.id || 0) - (a.id || 0);
+            });
+
+            const recent = allItems.slice(0, 3);
 
             if (!recent.length) {
                 container.innerHTML = '<p style="color:#64748b; font-size:0.85rem;">No hay agregados recientes.</p>';
