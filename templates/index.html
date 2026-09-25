@@ -8,8 +8,8 @@
     <style>
         /* Panel de widgets superiores (Buscar, Categorías, Lo más reciente) */
         .filter-wrapper {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
             gap: 15px;
             margin: 20px 0;
         }
@@ -22,6 +22,8 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
+            flex: 1;
+            min-width: 280px;
         }
 
         .filter-title {
@@ -171,13 +173,13 @@
         <!-- TRÍPTICO DE FILTROS ESTILO WIDGET -->
         <div class="filter-wrapper">
             <!-- 1. BÚSQUEDA -->
-            <div class="filter-card">
+            <div id="card-search" class="filter-card" style="display: none;">
                 <div class="filter-title">🔍 BUSCAR NOTICIA</div>
                 <input type="text" id="global-search" class="search-input-box" placeholder="Buscar palabras clave..." oninput="filterWiki()">
             </div>
             
             <!-- 2. CATEGORÍAS -->
-            <div class="filter-card">
+            <div id="card-categories" class="filter-card" style="display: none;">
                 <div class="filter-title">🏷️ CATEGORÍAS</div>
                 <div id="category-pills" class="pills-container">
                     <button class="category-pill active" onclick="selectCategory('Todas')">Todas</button>
@@ -185,7 +187,7 @@
             </div>
 
             <!-- 3. LO MÁS RECIENTE -->
-            <div class="filter-card">
+            <div id="card-recent" class="filter-card">
                 <div class="filter-title">🔥 LO MÁS RECIENTE</div>
                 <div id="recent-items-container" class="recent-list">
                     <p style="color:#64748b; font-size:0.85rem;">Cargando novedades...</p>
@@ -294,6 +296,18 @@
             const target = document.getElementById('sec-' + secId);
             if (target) target.classList.add('active');
 
+            // Ocultar Búsqueda y Categorías en INICIO, mostrarlas en subsecciones
+            const searchCard = document.getElementById('card-search');
+            const categoryCard = document.getElementById('card-categories');
+
+            if (secId === 'inicio') {
+                searchCard.style.display = 'none';
+                categoryCard.style.display = 'none';
+            } else {
+                searchCard.style.display = 'flex';
+                categoryCard.style.display = 'flex';
+            }
+
             activeCategory = 'Todas';
             renderCategoryPills();
             filterWiki();
@@ -307,6 +321,9 @@
             loadSectionData('recetas', renderRecetas);
             loadSectionData('ubicaciones', renderUbicaciones);
             loadSectionData('novedades', renderNovedades);
+
+            // Estado inicial: Ocultar Búsqueda y Categorías en Inicio
+            switchSection('inicio');
         });
 
         async function loadSectionData(cat, renderFn) {
@@ -369,7 +386,7 @@
                 });
             });
 
-            // Tomamos los últimos elementos añadidos (invertimos el array)
+            // Tomamos los últimos elementos añadidos
             allItems.reverse();
             const recent = allItems.slice(0, 3); // Muestra los últimos 3
 
