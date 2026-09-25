@@ -172,13 +172,13 @@
     <div class="container">
         <!-- SECCIÓN 1: INICIO -->
         <div id="sec-inicio" class="wiki-section active">
-            <!-- 1. CARTEL DE BIENVENIDA PRIMERO -->
+            <!-- 1. CARTEL DE BIENVENIDA -->
             <div class="hero-banner">
                 <h1>BIENVENIDO A LA WIKI OFICIAL DE SCARLETCRAFT</h1>
                 <p>Explora todas las guías, jefes, armas legendarias, minerales, crafteos y ubicaciones clave de nuestro servidor.</p>
             </div>
 
-            <!-- 2. WIDGET DE LO MÁS RECIENTE DEBAJO DEL CARTEL -->
+            <!-- 2. WIDGET LO MÁS RECIENTE -->
             <div id="card-recent-inicio" class="filter-card" style="margin: 20px 0;">
                 <div class="filter-title">🔥 LO MÁS RECIENTE</div>
                 <div id="recent-items-container" class="recent-list">
@@ -186,7 +186,7 @@
                 </div>
             </div>
             
-            <!-- 3. CUADRÍCULA DE CATEGORÍAS -->
+            <!-- 3. GRID DE CATEGORÍAS -->
             <div class="categories-grid">
                 <div class="category-card" onclick="switchSection('jefes')">
                     <h2>⚔️ Jefes Descubiertos</h2>
@@ -215,7 +215,7 @@
             </div>
         </div>
 
-        <!-- FILTROS (BÚSQUEDA Y CATEGORÍAS) PARA LAS DEMÁS SECCIONES -->
+        <!-- FILTROS SECUNDARIOS -->
         <div id="section-filters" class="filter-wrapper" style="display: none;">
             <div id="card-search" class="filter-card">
                 <div class="filter-title">🔍 BUSCAR EN WIKI</div>
@@ -364,51 +364,65 @@
             `).join('');
         }
 
-        // Renderiza el widget de "LO MÁS RECIENTE"
+        // Renderiza el widget "LO MÁS RECIENTE"
         function renderRecentWidget() {
             const container = document.getElementById('recent-items-container');
             if (!container) return;
 
             let candidateItems = [];
 
-            // Recorremos las categorías excluyendo novedades
+            // 1. Recopilar todos los ítems agregando información de timestamp si existe
             Object.keys(wikiStore).forEach(catKey => {
                 if (catKey === 'novedades') return;
 
                 const items = wikiStore[catKey] || [];
-                if (!items.length) return;
+                items.forEach(item => {
+                    let timeVal = 0;
+                    const dateStr = item.created_at || item.fecha_creacion || item.timestamp || item.fecha;
+                    if (dateStr) {
+                        const t = new Date(dateStr).getTime();
+                        if (!isNaN(t)) timeVal = t;
+                    }
 
-                // Invertimos el array para que el ÚLTIMO agregado esté en el índice 0
-                const reversed = [...items].reverse();
-
-                reversed.forEach((item, index) => {
                     candidateItems.push({
                         ...item,
                         _secTarget: catKey,
-                        _freshnessIndex: index, // 0 = El más reciente de esta categoría
+                        _time: timeVal,
                         _rawId: parseInt(item.id || 0, 10)
                     });
                 });
             });
 
-            // Ordenamos por fecha real o por el último agregado en cada categoría
-            candidateItems.sort((a, b) => {
-                const dateB = new Date(b.created_at || b.fecha_creacion || b.timestamp || b.fecha || 0).getTime();
-                const dateA = new Date(a.created_at || a.fecha_creacion || a.timestamp || a.fecha || 0).getTime();
+            const hasValidDates = candidateItems.some(i => i._time > 0);
 
-                if (!isNaN(dateB) && !isNaN(dateA) && dateB > 0 && dateA > 0 && dateB !== dateA) {
-                    return dateB - dateA;
-                }
+            let finalItems = [];
 
-                // Si no hay fechas, prioriza los últimos añadidos de cada categoría (_freshnessIndex menor)
-                if (a._freshnessIndex !== b._freshnessIndex) {
-                    return a._freshnessIndex - b._freshnessIndex;
-                }
+            if (hasValidDates) {
+                // Si la BD proporciona fechas, ordenar puramente por fecha
+                candidateItems.sort((a, b) => b._time - a._time);
+                finalItems = candidateItems;
+            } else {
+                // Si la BD NO proporciona fechas, tomar el ÚLTIMO ítem de CADA categoría
+                // para asegurar que las adiciones recientes de cualquier sección (minerales, armas, etc.) aparezcan.
+                let latestPerCategory = [];
+                Object.keys(wikiStore).forEach(catKey => {
+                    if (catKey === 'novedades') return;
 
-                return b._rawId - a._rawId;
-            });
+                    const items = wikiStore[catKey] || [];
+                    if (items.length > 0) {
+                        const lastItem = items[items.length - 1]; // El más reciente de esa tabla
+                        latestPerCategory.push({
+                            ...lastItem,
+                            _secTarget: catKey
+                        });
+                    }
+                });
 
-            const recent = candidateItems.slice(0, 3);
+                // Mostramos primero las adiciones más recientes rotando/invirtiendo
+                finalItems = latestPerCategory.reverse();
+            }
+
+            const recent = finalItems.slice(0, 3);
 
             if (!recent.length) {
                 container.innerHTML = '<p style="color:#64748b; font-size:0.85rem;">No hay agregados recientes.</p>';
